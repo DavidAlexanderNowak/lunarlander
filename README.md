@@ -2,6 +2,7 @@
 Lunar Lander in Java programmiert. Entstand aus einem Schulprojekt.
 
 ## Spielprinzip
+Lunar Lander ist ein 2D Spiel.
 Eine Rakete soll auf der Mondoberfläche gelandet werden.
 Diese Rakete hat Schub in eine Richtung, beides kann gesteuert werden.
 Die Mondoberfläche ist bergig, es gibt Landeflächen die flach sind auf denen eine Landung möglich ist.
