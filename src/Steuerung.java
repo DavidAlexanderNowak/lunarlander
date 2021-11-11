@@ -30,7 +30,6 @@ public class Steuerung implements Runnable{
 		case KeyEvent.VK_LEFT:
 			keysPressed.add(2);
 		break;
-		
 		}
 	}
 	
@@ -70,41 +69,13 @@ public class Steuerung implements Runnable{
 		dieRakete.seitenAustritt(0, dasSpielfeld.getBreite());
 		dieRakete.positionUpdate();	//Wenn positionUpdate über bodenBeruehrung ist
 		bodenBeruehrung();			//dann kann man vom boden wieder abheben
-									//(siehe Rakete.beschleunigen erste Zeile) Debug glaub
-	}
+	}								//(siehe Rakete.beschleunigen erste Zeile) Debug glaub
 	
 	private void bodenBeruehrung() {
 		boolean bodenBeruehrt = false;
 		Punkt[] punkt = dasSpielfeld.getDerPunkt();
-		Punkt[] hitPunkt = new Punkt[11];
-		//Punkt S an der Spitze:
-		hitPunkt[0] = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 50, Math.toRadians(dieRakete.getNeigung()));
-
-		//Punkte oL, oR
-		Punkt o = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), -27, Math.toRadians(dieRakete.getNeigung()-180));
-		hitPunkt[1] = hitPunktBerechnen(new Punkt(o), 20, Math.toRadians(dieRakete.getNeigung()-90));
-		hitPunkt[2] = hitPunktBerechnen(new Punkt(o), 20, Math.toRadians(dieRakete.getNeigung()+90));
-		
-		//Punkte aL, aR
-		Punkt a = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), -10, Math.toRadians(dieRakete.getNeigung()-180));
-		hitPunkt[3] = hitPunktBerechnen(new Punkt(a), 20, Math.toRadians(dieRakete.getNeigung()-90));
-		hitPunkt[4] = hitPunktBerechnen(new Punkt(a), 20, Math.toRadians(dieRakete.getNeigung()+90));
-		
-		//Punkte bL, bR
-		Punkt b = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 8, Math.toRadians(dieRakete.getNeigung()-180));
-		hitPunkt[5] = hitPunktBerechnen(new Punkt(b), 25, Math.toRadians(dieRakete.getNeigung()-90));
-		hitPunkt[6] = hitPunktBerechnen(new Punkt(b), 25, Math.toRadians(dieRakete.getNeigung()+90));
-		
-		//Punkte fl, fR
-		Punkt f = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 33, Math.toRadians(dieRakete.getNeigung()-180));
-		hitPunkt[7] = hitPunktBerechnen(new Punkt(f), 30, Math.toRadians(dieRakete.getNeigung()-90));
-		hitPunkt[8] = hitPunktBerechnen(new Punkt(f), 30, Math.toRadians(dieRakete.getNeigung()+90));
-		
-		//Punkte uL, uR
-		Punkt u = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 50, Math.toRadians(dieRakete.getNeigung()-180));
-		hitPunkt[9] = hitPunktBerechnen(new Punkt(u), 20, Math.toRadians(dieRakete.getNeigung()-90));
-		hitPunkt[10] = hitPunktBerechnen(new Punkt(u), 20, Math.toRadians(dieRakete.getNeigung()+90));
-
+		Punkt[] hitPunkt = hitPunkteSetzen();
+		dieRakete.setGelandet(false);
 		for(int i=0; i < dasSpielfeld.getAnzahlPunkte()-1; i++) {
 			double x1 = punkt[i].getX();
 			double y1 = punkt[i].getY();
@@ -114,6 +85,8 @@ public class Steuerung implements Runnable{
 			double c = y1 - m * x1;	//I  'y' = 'm'*'x'+c    bei ' ' ist Wert bekannt
 									//Ia c = 'y1' - 'm'*'x1'
 			
+			boolean landungFlach = (y2 == y1);
+
 			//Kollision mit Unterseite als Gerade
 			//hitPunkt 9 und 10 sind uL und uR
 			double xL = hitPunkt[9].getX();
@@ -138,6 +111,12 @@ public class Steuerung implements Runnable{
 				if(punktAufGerade(hitPunkt[j], c, x1, x2, m)) {
 					bodenBeruehrt = true;
 				};
+			}
+			
+			if(bodenBeruehrt && landungFlach) {
+			//Kollision auf einer flachen Fläche gilt als Landung, später noch Neigung und 
+			//Geschwindigkeit berücksichtigen
+				dieRakete.setGelandet(true);
 			}
 		}
 		//Später wenn der Boden berürht wird, gibt es keine Steuerung
@@ -213,6 +192,7 @@ public class Steuerung implements Runnable{
 		   	if(delta >= 1) {
 		    //Spielogik
 		    	//Aktualisieren
+		   		System.out.println(dieRakete.isGelandet());
 		    	update();
 		    	//Zeichnen
 		    	dieGUI.repaint();
@@ -236,6 +216,39 @@ public class Steuerung implements Runnable{
 		Punkt hitPunkt = new Punkt(ausgangspunkt.getX(),ausgangspunkt.getY());
 		Punkt vektor = new Punkt(true, abstand, winkel);
 		hitPunkt.vektorAddieren(vektor);
+		return hitPunkt;
+	}
+	
+	private Punkt[] hitPunkteSetzen() {
+		Punkt[] hitPunkt = new Punkt[11];
+		//Punkt S an der Spitze:
+		hitPunkt[0] = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 50, Math.toRadians(dieRakete.getNeigung()));
+		
+		//Punkte oL, oR
+		Punkt o = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), -27, Math.toRadians(dieRakete.getNeigung()-180));
+		hitPunkt[1] = hitPunktBerechnen(new Punkt(o), 20, Math.toRadians(dieRakete.getNeigung()-90));
+		hitPunkt[2] = hitPunktBerechnen(new Punkt(o), 20, Math.toRadians(dieRakete.getNeigung()+90));
+				
+		//Punkte aL, aR
+		Punkt a = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), -10, Math.toRadians(dieRakete.getNeigung()-180));
+		hitPunkt[3] = hitPunktBerechnen(new Punkt(a), 20, Math.toRadians(dieRakete.getNeigung()-90));
+		hitPunkt[4] = hitPunktBerechnen(new Punkt(a), 20, Math.toRadians(dieRakete.getNeigung()+90));
+				
+		//Punkte bL, bR
+		Punkt b = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 8, Math.toRadians(dieRakete.getNeigung()-180));
+		hitPunkt[5] = hitPunktBerechnen(new Punkt(b), 25, Math.toRadians(dieRakete.getNeigung()-90));
+		hitPunkt[6] = hitPunktBerechnen(new Punkt(b), 25, Math.toRadians(dieRakete.getNeigung()+90));
+				
+		//Punkte fl, fR
+		Punkt f = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 33, Math.toRadians(dieRakete.getNeigung()-180));
+		hitPunkt[7] = hitPunktBerechnen(new Punkt(f), 30, Math.toRadians(dieRakete.getNeigung()-90));
+		hitPunkt[8] = hitPunktBerechnen(new Punkt(f), 30, Math.toRadians(dieRakete.getNeigung()+90));
+		
+		//Punkte uL, uR
+		Punkt u = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 50, Math.toRadians(dieRakete.getNeigung()-180));
+		hitPunkt[9] = hitPunktBerechnen(new Punkt(u), 20, Math.toRadians(dieRakete.getNeigung()-90));
+		hitPunkt[10] = hitPunktBerechnen(new Punkt(u), 20, Math.toRadians(dieRakete.getNeigung()+90));
+	
 		return hitPunkt;
 	}
 

@@ -2,10 +2,11 @@ public class Rakete {
 	private Punkt position;
 	private Punkt geschwindigkeitsVektor;
 	private double beschleunigungsRate;//Abhängig von Gravitation
-	double neigungsrate = 2;
+	private double neigungsrate = 2;
 	private double neigung = 270;// 0 +x // 90 +y // 180 -x // 270 -y
 	private Punkt gravitation;//Vektor
-	public boolean stopp = false;
+	private boolean stopp = false;
+	private boolean gelandet = false;
 	
 	public Rakete(double gravitation) {
 		this.gravitation = new Punkt(0,gravitation);
@@ -76,4 +77,13 @@ public class Rakete {
 		mittelpunkt.vektorAddieren(new Punkt(50,50));
 		return mittelpunkt;
 	}
+
+	public boolean isGelandet() {
+		return gelandet;
+	}
+
+	public void setGelandet(boolean gelandet) {
+		this.gelandet = gelandet;
+	}
+	
 }
