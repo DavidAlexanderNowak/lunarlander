@@ -43,11 +43,11 @@ public class GUI extends JFrame{
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				dieSteuerung.tasteGedrücktVerarbeiten(e.getKeyCode());
+				dieSteuerung.keyPressed(e.getKeyCode());
 			}
 			@Override
 			public void keyReleased(KeyEvent e) {
-				dieSteuerung.tasteLosgelassenVerarbeiten(e.getKeyCode());
+				dieSteuerung.keyReleased(e.getKeyCode());
 			}
 		});
 		setVisible(true);
