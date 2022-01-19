@@ -102,10 +102,10 @@ public class Steuerung implements Runnable {
 	}
 
 	private void kollisionen() {
+		bodenBeruehrung();
 		dieRakete.seitenAustritt(0, dasSpielfeld.getBreite());
-		dieRakete.positionUpdate(); // Wenn positionUpdate über bodenBeruehrung ist
-		bodenBeruehrung(); // dann kann man vom boden wieder abheben
-	} // (siehe Rakete.beschleunigen erste Zeile) Debug glaub
+		dieRakete.positionUpdate();
+	}
 
 	private void bodenBeruehrung() {
 		boolean bodenBeruehrt = false;
@@ -167,8 +167,18 @@ public class Steuerung implements Runnable {
 
 	public void grafik() {
 		dieGUI.hintergrundLoeschen();
-		dieGUI.spielfeldZeichnen(dasSpielfeld.getAnzahlPunkte(), dasSpielfeld.getDerPunkt());
-		dieGUI.raketeZeichnen(dieRakete.getPosition(), dieRakete.getMittelpunkt(), dieRakete.getNeigung());
+		switch (gameState) {
+		case START:
+			dieGUI.drawStartScreen();
+			break;
+		case GAMELOOP:
+			dieGUI.spielfeldZeichnen(dasSpielfeld.getDerPunkt());
+			dieGUI.raketeZeichnen(dieRakete.getPosition(), dieRakete.getMittelpunkt(), dieRakete.getNeigung());
+			break;
+		case END:
+			break;
+		default:
+		}
 	}
 
 	private void spielfeldInitialisieren() {
@@ -228,10 +238,7 @@ public class Steuerung implements Runnable {
 			delta += (now - lastTime) / timePerTick;
 			lastTime = now;
 			if (delta >= 1) {
-				// Spielogik
-				// Aktualisieren
 				update();
-				// Zeichnen
 				delta--;
 			}
 		}
