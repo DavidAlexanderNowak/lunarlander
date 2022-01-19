@@ -1,5 +1,5 @@
-import java.util.HashSet;
 import java.awt.event.KeyEvent;
+import java.util.HashSet;
 
 public class Steuerung implements Runnable {
 	private GUI dieGUI;
@@ -94,10 +94,10 @@ public class Steuerung implements Runnable {
 			dieRakete.beschleunigen();
 		}
 		if (keysPressed.contains(1)) {// Rechts - Pfeil Rechts
-			dieRakete.steuern(1);
+			dieRakete.steuern(Rakete.Richtung.RECHTS);
 		}
 		if (keysPressed.contains(2)) {// Links - Pfeil Links
-			dieRakete.steuern(-1);
+			dieRakete.steuern(Rakete.Richtung.LINKS);
 		}
 	}
 
@@ -172,6 +172,7 @@ public class Steuerung implements Runnable {
 			dieGUI.drawStartScreen();
 			break;
 		case GAMELOOP:
+			dieGUI.drawHUD();
 			dieGUI.spielfeldZeichnen(dasSpielfeld.getDerPunkt());
 			dieGUI.raketeZeichnen(dieRakete.getPosition(), dieRakete.getMittelpunkt(), dieRakete.getNeigung());
 			break;
@@ -187,36 +188,36 @@ public class Steuerung implements Runnable {
 		int breite = dasSpielfeld.getBreite();
 		int hoehe = dasSpielfeld.getHoehe();
 		// Alle Punkte von Hand eintragen
-		dasSpielfeld.setPunkt(0, new Punkt(0, hoehe * 0.55));
-		dasSpielfeld.setPunkt(1, new Punkt(breite * 0.07, hoehe * 0.4));
-		dasSpielfeld.setPunkt(2, new Punkt(breite * 0.08, hoehe * 0.42));
-		dasSpielfeld.setPunkt(3, new Punkt(breite * 0.15, hoehe * 0.27));
-		dasSpielfeld.setPunkt(4, new Punkt(breite * 0.19, hoehe * 0.5));
-		dasSpielfeld.setPunkt(5, new Punkt(breite * 0.2, hoehe * 0.48));
-		dasSpielfeld.setPunkt(6, new Punkt(breite * 0.23, hoehe * 0.75));
-		dasSpielfeld.setPunkt(7, new Punkt(breite * 0.27, hoehe * 0.58));
-		dasSpielfeld.setPunkt(8, new Punkt(breite * 0.3, hoehe * 0.58));
-		dasSpielfeld.setPunkt(9, new Punkt(breite * 0.33, hoehe * 0.65));
-		dasSpielfeld.setPunkt(10, new Punkt(breite * 0.4, hoehe * 0.62));
-		dasSpielfeld.setPunkt(11, new Punkt(breite * 0.42, hoehe * 0.64));
-		dasSpielfeld.setPunkt(12, new Punkt(breite * 0.46, hoehe * 0.52));
-		dasSpielfeld.setPunkt(13, new Punkt(breite * 0.5, hoehe * 0.77));
-		dasSpielfeld.setPunkt(14, new Punkt(breite * 0.51, hoehe * 0.75));
-		dasSpielfeld.setPunkt(15, new Punkt(breite * 0.53, hoehe * 0.85));
-		dasSpielfeld.setPunkt(16, new Punkt(breite * 0.55, hoehe * 0.83));
-		dasSpielfeld.setPunkt(17, new Punkt(breite * 0.59, hoehe * 0.87));
-		dasSpielfeld.setPunkt(18, new Punkt(breite * 0.7, hoehe * 0.87));
-		dasSpielfeld.setPunkt(19, new Punkt(breite * 0.72, hoehe * 0.69));
-		dasSpielfeld.setPunkt(20, new Punkt(breite * 0.73, hoehe * 0.71));
-		dasSpielfeld.setPunkt(21, new Punkt(breite * 0.76, hoehe * 0.64));
-		dasSpielfeld.setPunkt(22, new Punkt(breite * 0.81, hoehe * 0.75));
-		dasSpielfeld.setPunkt(23, new Punkt(breite * 0.84, hoehe * 0.72));
-		dasSpielfeld.setPunkt(24, new Punkt(breite * 0.87, hoehe * 0.72));
-		dasSpielfeld.setPunkt(25, new Punkt(breite * 0.89, hoehe * 0.68));
-		dasSpielfeld.setPunkt(26, new Punkt(breite * 0.92, hoehe * 0.72));
-		dasSpielfeld.setPunkt(27, new Punkt(breite * 0.94, hoehe * 0.65));
-		dasSpielfeld.setPunkt(28, new Punkt(breite * 0.95, hoehe * 0.67));
-		dasSpielfeld.setPunkt(29, new Punkt(breite, hoehe * 0.55));
+		dasSpielfeld.setPunkt(0, new Punkt(false, 0, hoehe * 0.55));
+		dasSpielfeld.setPunkt(1, new Punkt(false, breite * 0.07, hoehe * 0.4));
+		dasSpielfeld.setPunkt(2, new Punkt(false, breite * 0.08, hoehe * 0.42));
+		dasSpielfeld.setPunkt(3, new Punkt(false, breite * 0.15, hoehe * 0.27));
+		dasSpielfeld.setPunkt(4, new Punkt(false, breite * 0.19, hoehe * 0.5));
+		dasSpielfeld.setPunkt(5, new Punkt(false, breite * 0.2, hoehe * 0.48));
+		dasSpielfeld.setPunkt(6, new Punkt(false, breite * 0.23, hoehe * 0.75));
+		dasSpielfeld.setPunkt(7, new Punkt(false, breite * 0.27, hoehe * 0.58));
+		dasSpielfeld.setPunkt(8, new Punkt(false, breite * 0.3, hoehe * 0.58));
+		dasSpielfeld.setPunkt(9, new Punkt(false, breite * 0.33, hoehe * 0.65));
+		dasSpielfeld.setPunkt(10, new Punkt(false, breite * 0.4, hoehe * 0.62));
+		dasSpielfeld.setPunkt(11, new Punkt(false, breite * 0.42, hoehe * 0.64));
+		dasSpielfeld.setPunkt(12, new Punkt(false, breite * 0.46, hoehe * 0.52));
+		dasSpielfeld.setPunkt(13, new Punkt(false, breite * 0.5, hoehe * 0.77));
+		dasSpielfeld.setPunkt(14, new Punkt(false, breite * 0.51, hoehe * 0.75));
+		dasSpielfeld.setPunkt(15, new Punkt(false, breite * 0.53, hoehe * 0.85));
+		dasSpielfeld.setPunkt(16, new Punkt(false, breite * 0.55, hoehe * 0.83));
+		dasSpielfeld.setPunkt(17, new Punkt(false, breite * 0.59, hoehe * 0.87));
+		dasSpielfeld.setPunkt(18, new Punkt(false, breite * 0.7, hoehe * 0.87));
+		dasSpielfeld.setPunkt(19, new Punkt(false, breite * 0.72, hoehe * 0.69));
+		dasSpielfeld.setPunkt(20, new Punkt(false, breite * 0.73, hoehe * 0.71));
+		dasSpielfeld.setPunkt(21, new Punkt(false, breite * 0.76, hoehe * 0.64));
+		dasSpielfeld.setPunkt(22, new Punkt(false, breite * 0.81, hoehe * 0.75));
+		dasSpielfeld.setPunkt(23, new Punkt(false, breite * 0.84, hoehe * 0.72));
+		dasSpielfeld.setPunkt(24, new Punkt(false, breite * 0.87, hoehe * 0.72));
+		dasSpielfeld.setPunkt(25, new Punkt(false, breite * 0.89, hoehe * 0.68));
+		dasSpielfeld.setPunkt(26, new Punkt(false, breite * 0.92, hoehe * 0.72));
+		dasSpielfeld.setPunkt(27, new Punkt(false, breite * 0.94, hoehe * 0.65));
+		dasSpielfeld.setPunkt(28, new Punkt(false, breite * 0.95, hoehe * 0.67));
+		dasSpielfeld.setPunkt(29, new Punkt(false, breite, hoehe * 0.55));
 
 //		für Test zwecke random Map
 //		for(int i = 1; i < dasSpielfeld.getAnzahlPunkte()-1; i++) {
@@ -256,7 +257,7 @@ public class Steuerung implements Runnable {
 	}
 
 	private Punkt hitPunktBerechnen(Punkt ausgangspunkt, int abstand, double winkel) {
-		Punkt hitPunkt = new Punkt(ausgangspunkt.getX(), ausgangspunkt.getY());
+		Punkt hitPunkt = new Punkt(false, ausgangspunkt.getX(), ausgangspunkt.getY());
 		Punkt vektor = new Punkt(true, abstand, winkel);
 		hitPunkt.vektorAddieren(vektor);
 		return hitPunkt;

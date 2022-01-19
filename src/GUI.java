@@ -34,7 +34,7 @@ public class GUI extends JFrame {
 		hoehe = dieSteuerung.getDasSpielfeld().getHoehe();
 		breite = dieSteuerung.getDasSpielfeld().getBreite();
 
-		setBounds(0, 0, breite, hoehe);// x,y,Breite,Höhe
+		setBounds(0, 0, breite, hoehe);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);

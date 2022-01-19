@@ -1,30 +1,42 @@
 public class Rakete {
 	private Punkt position;
 	private Punkt geschwindigkeitsVektor;
-	private double beschleunigungsRate;// Abhängig von Gravitation
+	private double beschleunigungsRate;
 	private double neigungsrate = 2;
-	private double neigung = 270;// 0 +x // 90 +y // 180 -x // 270 -y
-	private Punkt gravitation;// Vektor
+	private double neigung = 270;
+	private Punkt gravitation;
 	private boolean gelandet = false;
 	private boolean alive = true;
 
+	public enum Richtung {
+		LINKS, RECHTS
+	}
+	
 	public Rakete(double gravitation) {
 		init(gravitation);
 	}
 
 	private void init(double gravitation) {
-		this.gravitation = new Punkt(0, gravitation);
+		this.gravitation = new Punkt(false, 0, gravitation);
 		beschleunigungsRate = 2 * gravitation;
-		position = new Punkt(0, 0);
-		geschwindigkeitsVektor = new Punkt(0, 0);
+		position = new Punkt(false, 0, 0);
+		geschwindigkeitsVektor = new Punkt(false, 0, 0);
 	}
 
 	public void beschleunigen() {
 		geschwindigkeitsVektor.vektorAddieren(new Punkt(true, beschleunigungsRate, neigung * Math.PI / 180));
 	}
 
-	public void steuern(int richtung) {
-		neigung += neigungsrate * richtung;// Richtung kann 1 oder -1 sein
+	public void steuern(Richtung richtung) {
+		switch(richtung) {
+		case LINKS:
+			neigung += neigungsrate * -1;
+			break;
+		case RECHTS:
+			neigung += neigungsrate;
+			break;
+		default:	
+		}
 		neigung = keepDegreesInRange(neigung);
 	}
 
@@ -73,7 +85,7 @@ public class Rakete {
 
 	public Punkt getMittelpunkt() {
 		Punkt mittelpunkt = new Punkt(position);
-		mittelpunkt.vektorAddieren(new Punkt(50, 50));
+		mittelpunkt.vektorAddieren(new Punkt(false, 50, 50));
 		return mittelpunkt;
 	}
 
