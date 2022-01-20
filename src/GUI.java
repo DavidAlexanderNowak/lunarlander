@@ -55,14 +55,14 @@ public class GUI extends JFrame {
 	}
 
 	@Override
-	public void paint(Graphics g) {
+	public void paint(Graphics graphics) {
 		if (doubleBufferImage == null) {
 			doubleBufferImage = createImage(this.getSize().width, this.getSize().height);
 			doubleBufferGraphics = doubleBufferImage.getGraphics();
 		}
 		doubleBufferGraphics.clearRect(0, 0, this.getSize().width, this.getSize().height);
 		dieSteuerung.grafik();
-		g.drawImage(doubleBufferImage, 0, 0, this);
+		graphics.drawImage(doubleBufferImage, 0, 0, this);
 	}
 
 	public void hintergrundLoeschen() {
