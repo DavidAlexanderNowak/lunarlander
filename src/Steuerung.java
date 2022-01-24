@@ -4,6 +4,10 @@ import java.util.HashSet;
 public class Steuerung implements Runnable {
 	private GUI dieGUI;
 	private Rakete dieRakete;
+	public Rakete getDieRakete() {
+		return dieRakete;
+	}
+
 	private Spielfeld dasSpielfeld;
 	private HashSet<Integer> keysPressed = new HashSet<>();
 	private GameState gameState;
