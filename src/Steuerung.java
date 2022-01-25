@@ -2,6 +2,7 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 
 public class Steuerung implements Runnable {
+	private static final boolean TRUE = true;
 	private GUI dieGUI;
 	private Rakete dieRakete;
 	public Rakete getDieRakete() {
@@ -39,6 +40,10 @@ public class Steuerung implements Runnable {
 		case KeyEvent.VK_LEFT:
 			keysPressed.add(2);
 			break;
+		case KeyEvent.VK_ENTER:
+			keysPressed.add(3);
+			break;
+		default:
 		}
 	}
 
@@ -53,6 +58,10 @@ public class Steuerung implements Runnable {
 		case KeyEvent.VK_LEFT:
 			keysPressed.remove(2);
 			break;
+		case KeyEvent.VK_ENTER:
+			keysPressed.remove(3);
+			break;
+		default:
 		}
 	}
 
@@ -60,6 +69,7 @@ public class Steuerung implements Runnable {
 		updateGameState();
 		switch (gameState) {
 		case START:
+			resetPosition();
 			break;
 		case GAMELOOP:
 			gameLoopInput();
@@ -72,6 +82,10 @@ public class Steuerung implements Runnable {
 		}
 		dieGUI.repaint();
 		System.out.println(gameState);
+	}
+
+	private void resetPosition() {
+		dieRakete = new Rakete(dasSpielfeld.getGravitation());
 	}
 
 	private void updateGameState() {
@@ -87,9 +101,11 @@ public class Steuerung implements Runnable {
 			}
 			break;
 		case END:
+			if (keysPressed.contains(3)) {
+				gameState = GameState.START;
+			}
 			break;
 		default:
-
 		}
 	}
 
@@ -181,6 +197,8 @@ public class Steuerung implements Runnable {
 			dieGUI.raketeZeichnen(dieRakete.getPosition(), dieRakete.getMittelpunkt(), dieRakete.getNeigung());
 			break;
 		case END:
+			dieGUI.spielfeldZeichnen(dasSpielfeld.getDerPunkt());
+			dieGUI.raketeZeichnen(dieRakete.getPosition(), dieRakete.getMittelpunkt(), dieRakete.getNeigung());
 			break;
 		default:
 		}
@@ -238,7 +256,7 @@ public class Steuerung implements Runnable {
 		double delta = 0;
 		long now;
 		long lastTime = System.nanoTime();
-		while (true) {
+		while (TRUE) {
 			now = System.nanoTime();
 			delta += (now - lastTime) / timePerTick;
 			lastTime = now;
