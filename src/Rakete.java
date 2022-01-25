@@ -1,6 +1,10 @@
 public class Rakete {
 	private Punkt position;
 	private Punkt geschwindigkeitsVektor;
+	public Punkt getGeschwindigkeitsVektor() {
+		return geschwindigkeitsVektor;
+	}
+
 	private double beschleunigungsRate;
 	private double neigungsrate = 2;
 	private double neigung = 270;

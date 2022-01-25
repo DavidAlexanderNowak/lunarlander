@@ -5,6 +5,10 @@ public class Steuerung implements Runnable {
 	private static final boolean TRUE = true;
 	private GUI dieGUI;
 	private Rakete dieRakete;
+	public Rakete getDieRakete() {
+		return dieRakete;
+	}
+
 	private Spielfeld dasSpielfeld;
 	private HashSet<Integer> keysPressed = new HashSet<>();
 	private GameState gameState;
