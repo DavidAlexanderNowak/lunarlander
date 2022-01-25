@@ -1,12 +1,13 @@
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 
-public class Steuerung implements Runnable {
+public class Control implements Runnable {
 	private static final boolean TRUE = true;
-	private GUI dieGUI;
-	private Rakete dieRakete;
+	private GUI gui;
+	private Rakete rocket;
+
 	public Rakete getDieRakete() {
-		return dieRakete;
+		return rocket;
 	}
 
 	private Spielfeld dasSpielfeld;
@@ -18,15 +19,15 @@ public class Steuerung implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		Thread thread = new Thread(new Steuerung());
+		Thread thread = new Thread(new Control());
 		thread.start();
 	}
 
-	public Steuerung() {
+	public Control() {
 		gameState = GameState.START;
 		spielfeldInitialisieren();
-		dieRakete = new Rakete(dasSpielfeld.getGravitation());
-		dieGUI = new GUI(this);
+		rocket = new Rakete(dasSpielfeld.getGravitation());
+		gui = new GUI(this);
 	}
 
 	public void keyPressed(int code) {
@@ -80,12 +81,12 @@ public class Steuerung implements Runnable {
 		default:
 
 		}
-		dieGUI.repaint();
+		gui.repaint();
 		System.out.println(gameState);
 	}
 
 	private void resetPosition() {
-		dieRakete = new Rakete(dasSpielfeld.getGravitation());
+		rocket = new Rakete(dasSpielfeld.getGravitation());
 	}
 
 	private void updateGameState() {
@@ -96,7 +97,7 @@ public class Steuerung implements Runnable {
 			}
 			break;
 		case GAMELOOP:
-			if (dieRakete.isGelandet()) {
+			if (rocket.isGelandet()) {
 				gameState = GameState.END;
 			}
 			break;
@@ -111,27 +112,27 @@ public class Steuerung implements Runnable {
 
 	private void gameLoopInput() {
 		if (keysPressed.contains(0)) {// Schub - Leertaste
-			dieRakete.beschleunigen();
+			rocket.beschleunigen();
 		}
 		if (keysPressed.contains(1)) {// Rechts - Pfeil Rechts
-			dieRakete.steuern(Rakete.Richtung.RECHTS);
+			rocket.steuern(Rakete.Richtung.RECHTS);
 		}
 		if (keysPressed.contains(2)) {// Links - Pfeil Links
-			dieRakete.steuern(Rakete.Richtung.LINKS);
+			rocket.steuern(Rakete.Richtung.LINKS);
 		}
 	}
 
 	private void kollisionen() {
 		bodenBeruehrung();
-		dieRakete.seitenAustritt(0, dasSpielfeld.getBreite());
-		dieRakete.positionUpdate();
+		rocket.seitenAustritt(0, dasSpielfeld.getBreite());
+		rocket.positionUpdate();
 	}
 
 	private void bodenBeruehrung() {
 		boolean bodenBeruehrt = false;
 		Punkt[] punkt = dasSpielfeld.getDerPunkt();
 		Punkt[] hitPunkt = hitPunkteSetzen();
-		dieRakete.setGelandet(false);
+		rocket.setGelandet(false);
 		for (int i = 0; i < dasSpielfeld.getAnzahlPunkte() - 1; i++) {
 			double x1 = punkt[i].getX();
 			double y1 = punkt[i].getY();
@@ -172,33 +173,35 @@ public class Steuerung implements Runnable {
 			}
 
 			if (bodenBeruehrt) {
-				if (landungFlach || dieRakete.isGelandet()) {
+				if (landungFlach || rocket.isGelandet()) {
 					/*
 					 * Kollision auf einer flachen Fläche gilt als Landung, später noch Neigung und
 					 * Geschwindigkeit berücksichtigen
 					 */
-					dieRakete.setGelandet(true);
+					rocket.setGelandet(true);
 				} else {
-					dieRakete.setAlive(false);
+					rocket.setAlive(false);
 				}
 			}
 		}
 	}
 
-	public void grafik() {
-		dieGUI.hintergrundLoeschen();
+	public void graphics() {
+		gui.clear();
 		switch (gameState) {
 		case START:
-			dieGUI.drawStartScreen();
+			gui.drawStartScreen();
 			break;
 		case GAMELOOP:
-			dieGUI.drawHUD();
-			dieGUI.spielfeldZeichnen(dasSpielfeld.getDerPunkt());
-			dieGUI.raketeZeichnen(dieRakete.getPosition(), dieRakete.getMittelpunkt(), dieRakete.getNeigung());
+			gui.drawHUD();
+			gui.drawGameStage(dasSpielfeld.getDerPunkt());
+			gui.drawRocket(rocket.getPosition()//
+					, rocket.getMittelpunkt(), rocket.getNeigung());
 			break;
 		case END:
-			dieGUI.spielfeldZeichnen(dasSpielfeld.getDerPunkt());
-			dieGUI.raketeZeichnen(dieRakete.getPosition(), dieRakete.getMittelpunkt(), dieRakete.getNeigung());
+			gui.drawGameStage(dasSpielfeld.getDerPunkt());
+			gui.drawRocket(rocket.getPosition()//
+					, rocket.getMittelpunkt(), rocket.getNeigung());
 			break;
 		default:
 		}
@@ -288,38 +291,32 @@ public class Steuerung implements Runnable {
 	private Punkt[] hitPunkteSetzen() {
 		Punkt[] hitPunkt = new Punkt[11];
 		// Punkt S an der Spitze:
-		hitPunkt[0] = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 50,
-				Math.toRadians(dieRakete.getNeigung()));
+		hitPunkt[0] = hitPunktBerechnen(new Punkt(rocket.getMittelpunkt()), 50, Math.toRadians(rocket.getNeigung()));
 
 		// Punkte oL, oR
-		Punkt o = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), -27,
-				Math.toRadians(dieRakete.getNeigung() - 180));
-		hitPunkt[1] = hitPunktBerechnen(new Punkt(o), 20, Math.toRadians(dieRakete.getNeigung() - 90));
-		hitPunkt[2] = hitPunktBerechnen(new Punkt(o), 20, Math.toRadians(dieRakete.getNeigung() + 90));
+		Punkt o = hitPunktBerechnen(new Punkt(rocket.getMittelpunkt()), -27, Math.toRadians(rocket.getNeigung() - 180));
+		hitPunkt[1] = hitPunktBerechnen(new Punkt(o), 20, Math.toRadians(rocket.getNeigung() - 90));
+		hitPunkt[2] = hitPunktBerechnen(new Punkt(o), 20, Math.toRadians(rocket.getNeigung() + 90));
 
 		// Punkte aL, aR
-		Punkt a = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), -10,
-				Math.toRadians(dieRakete.getNeigung() - 180));
-		hitPunkt[3] = hitPunktBerechnen(new Punkt(a), 20, Math.toRadians(dieRakete.getNeigung() - 90));
-		hitPunkt[4] = hitPunktBerechnen(new Punkt(a), 20, Math.toRadians(dieRakete.getNeigung() + 90));
+		Punkt a = hitPunktBerechnen(new Punkt(rocket.getMittelpunkt()), -10, Math.toRadians(rocket.getNeigung() - 180));
+		hitPunkt[3] = hitPunktBerechnen(new Punkt(a), 20, Math.toRadians(rocket.getNeigung() - 90));
+		hitPunkt[4] = hitPunktBerechnen(new Punkt(a), 20, Math.toRadians(rocket.getNeigung() + 90));
 
 		// Punkte bL, bR
-		Punkt b = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 8,
-				Math.toRadians(dieRakete.getNeigung() - 180));
-		hitPunkt[5] = hitPunktBerechnen(new Punkt(b), 25, Math.toRadians(dieRakete.getNeigung() - 90));
-		hitPunkt[6] = hitPunktBerechnen(new Punkt(b), 25, Math.toRadians(dieRakete.getNeigung() + 90));
+		Punkt b = hitPunktBerechnen(new Punkt(rocket.getMittelpunkt()), 8, Math.toRadians(rocket.getNeigung() - 180));
+		hitPunkt[5] = hitPunktBerechnen(new Punkt(b), 25, Math.toRadians(rocket.getNeigung() - 90));
+		hitPunkt[6] = hitPunktBerechnen(new Punkt(b), 25, Math.toRadians(rocket.getNeigung() + 90));
 
 		// Punkte fl, fR
-		Punkt f = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 33,
-				Math.toRadians(dieRakete.getNeigung() - 180));
-		hitPunkt[7] = hitPunktBerechnen(new Punkt(f), 30, Math.toRadians(dieRakete.getNeigung() - 90));
-		hitPunkt[8] = hitPunktBerechnen(new Punkt(f), 30, Math.toRadians(dieRakete.getNeigung() + 90));
+		Punkt f = hitPunktBerechnen(new Punkt(rocket.getMittelpunkt()), 33, Math.toRadians(rocket.getNeigung() - 180));
+		hitPunkt[7] = hitPunktBerechnen(new Punkt(f), 30, Math.toRadians(rocket.getNeigung() - 90));
+		hitPunkt[8] = hitPunktBerechnen(new Punkt(f), 30, Math.toRadians(rocket.getNeigung() + 90));
 
 		// Punkte uL, uR
-		Punkt u = hitPunktBerechnen(new Punkt(dieRakete.getMittelpunkt()), 50,
-				Math.toRadians(dieRakete.getNeigung() - 180));
-		hitPunkt[9] = hitPunktBerechnen(new Punkt(u), 20, Math.toRadians(dieRakete.getNeigung() - 90));
-		hitPunkt[10] = hitPunktBerechnen(new Punkt(u), 20, Math.toRadians(dieRakete.getNeigung() + 90));
+		Punkt u = hitPunktBerechnen(new Punkt(rocket.getMittelpunkt()), 50, Math.toRadians(rocket.getNeigung() - 180));
+		hitPunkt[9] = hitPunktBerechnen(new Punkt(u), 20, Math.toRadians(rocket.getNeigung() - 90));
+		hitPunkt[10] = hitPunktBerechnen(new Punkt(u), 20, Math.toRadians(rocket.getNeigung() + 90));
 
 		return hitPunkt;
 	}
