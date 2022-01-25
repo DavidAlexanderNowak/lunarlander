@@ -70,10 +70,18 @@ public class GUI extends JFrame {
 		doubleBufferGraphics.fillRect(0, 0, getSize().width, getSize().height);
 	}
 
+	public void initialiseStartScreen() {
+		
+	}
+	
 	public void drawStartScreen() {
 
 	}
 
+	public void initialiseHUD() {
+		
+	}
+	
 	public void drawHUD() {
 		
 	}
