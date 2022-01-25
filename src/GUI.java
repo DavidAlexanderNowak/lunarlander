@@ -81,7 +81,6 @@ public class GUI extends JFrame {
 		doubleBufferGraphics.clearRect(0, 0, this.getSize().width, this.getSize().height);
 		dieSteuerung.grafik();
 		drawHUD();
-		g.drawImage(doubleBufferImage, 0, 0, this);
 		graphics.drawImage(doubleBufferImage, 0, 0, this);
 	}
 
@@ -93,6 +92,7 @@ public class GUI extends JFrame {
 	public void initialiseStartScreen() {
 		
 	}
+
 	public void drawStartScreen() {
 
 	}
@@ -150,9 +150,6 @@ public class GUI extends JFrame {
 		hud.add(lblNeigung);
 	}
 
-	public void initialiseHUD() {
-		
-	}
 	public void drawHUD() {
 		lblGeschwindigkeit
 				.setText("Geschwindigkeit: " + (int) dieSteuerung.getDieRakete().getGeschwindigkeitsVektor().getL());
