@@ -16,33 +16,39 @@ import javax.swing.border.EmptyBorder;
 public class GUI extends JFrame {
 	private Control control;
 
-	// HUD
-//	private JPanel hud;
-	private int HUD_Y = 30;
-
 	private JPanel contentPane;
 	private Image doubleBufferImage;
 	private Graphics doubleBufferGraphics;
 
 	private BufferedImage rocketImage;
+	private int HUD_Y = 30;
 
 	public GUI(Control dieSteuerung) {
 		initialise(dieSteuerung);
-		setVisible(true);
 	}
 
 	private void initialise(Control control) {
 		this.control = control;
-		rocketImage = Utilities.ladeBild("/player.png");
+		rocketImage = Utilities.loadImage("/player.png");
+		initialiseWindowSettings();
+		initialiseContentPane();
+		initialiseKeyListeners();
+		setVisible(true);
+	}
+
+	private void initialiseWindowSettings() {
 		setTitle("Lunar Lander");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, this.control.getDasSpielfeld().getBreite()//
 				, this.control.getDasSpielfeld().getHoehe());
+	}
+
+	private void initialiseContentPane() {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		initialiseKeyListeners();
+		setLayout(null);
 	}
 
 	private void initialiseKeyListeners() {
@@ -75,37 +81,58 @@ public class GUI extends JFrame {
 		doubleBufferGraphics.fillRect(0, 0, getSize().width, getSize().height);
 	}
 
-	public void initialiseStartScreen() {
-
-	}
-
 	public void drawStartScreen() {
 
 	}
 
-	private void createHUDLabels(JPanel hud) {
+	public void drawHUD() {
+		JPanel hud = createHudJPanel();
+		createHudLabels(hud);
+		hud.paintComponents(doubleBufferGraphics);
+	}
+
+	private JPanel createHudJPanel() {
+		JPanel hudJPanel = new JPanel();
+		calculateHudDimensions(hudJPanel);
+		contentPane.add(hudJPanel);
+		hudJPanel.setLayout(null);
+		return hudJPanel;
+	}
+
+	private void calculateHudDimensions(JPanel hud) {
+		int hudX = control.getDasSpielfeld().getBreite() * 39 / 100;
+		int hudWidth = control.getDasSpielfeld().getBreite() * 26 / 100;
+		int hudHeight = control.getDasSpielfeld().getHoehe() / 10;
+		hud.setBounds(hudX, HUD_Y, hudWidth, hudHeight);
+	}
+
+	private void createHudLabels(JPanel hud) {
 		int hudX = hud.getX();
 		int hudY = hud.getY();
 		int hudWidth = hud.getWidth();
 		int hudHeight = hud.getHeight();
 
 		JLabel speedLabel = new JLabel("Speed: "//
-				+ control.getDieRakete().getGeschwindigkeitsVektor().getL());
+				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getL());
 		speedLabel.setBounds(hudX, hudY, hudWidth / 2, hudHeight / 2);
 
-		JLabel axisSpeedLabel = new JLabel("X: " + "Y: ");
+		JLabel axisSpeedLabel = new JLabel("X: "//
+				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getX()//
+				+ "  Y: "//
+				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getY());
 		axisSpeedLabel.setBounds(hudX, hudY + hudHeight / 2//
 				, hudWidth / 2, hudHeight / 2);
 
-		JLabel legacyElementLabel = new JLabel("Schub: ");
+		JLabel legacyElementLabel = new JLabel("Schub: " + "legacy " + "%");
 		legacyElementLabel.setBounds(hudX + hudWidth / 2, hudY//
 				, hudWidth / 2, hudHeight / 2);
 
-		JLabel angleLabel = new JLabel("Angle: ");
+		JLabel angleLabel = new JLabel("Angle: "//
+				+ (int) (control.getDieRakete().getNeigung()) + "°");
 		angleLabel.setBounds(hudX + hudWidth / 2, hudY//
 				+ hudHeight / 2, hudWidth / 2, hudHeight / 2);
 
-		Font labelFont = createFont(speedLabel);
+		Font labelFont = Utilities.createFont(legacyElementLabel);
 		speedLabel.setFont(labelFont);
 		axisSpeedLabel.setFont(labelFont);
 		angleLabel.setFont(labelFont);
@@ -115,72 +142,6 @@ public class GUI extends JFrame {
 		hud.add(axisSpeedLabel);
 		hud.add(legacyElementLabel);
 		hud.add(angleLabel);
-
-		speedLabel.setText("Speed: "//
-				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getL());
-		axisSpeedLabel.setText("X: "//
-				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getX()//
-				+ "   Y: "//
-				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getY());
-		legacyElementLabel.setText("Schub: " + "legacy " + "%");
-		angleLabel.setText("Angle: "//
-				+ (int) (control.getDieRakete().getNeigung()) + "°");
-	
-	}
-
-	private Font createFont(JLabel label) {
-		Font font = label.getFont();
-		String labelText = label.getText();
-		int stringWidth = label.getFontMetrics(font).stringWidth(labelText);
-		int componentWidth = label.getWidth();
-
-		// Find out how much the font can grow in width.
-		double widthRatio = (double) componentWidth / (double) stringWidth;
-
-		int newFontSize = (int) (font.getSize() * widthRatio);
-		int componentHeight = label.getHeight();
-
-		// Pick a new font size so it will not be larger than the height of label.
-		int fontSizeToUse = Math.min(newFontSize, componentHeight);
-
-		font = new Font(font.getName(), Font.PLAIN, fontSizeToUse);
-
-		return font;
-		
-		// Set the label's font size to the newly determined size.
-//		label.setFont(font);
-
-	}
-
-	private JPanel createHUDJPanel() {
-		JPanel hudJPanel = new JPanel();
-		calculateHUDDimensions(hudJPanel);
-		contentPane.add(hudJPanel);
-		hudJPanel.setLayout(null);
-		return hudJPanel;
-	}
-
-	private void calculateHUDDimensions(JPanel hud) {
-		int hudX = control.getDasSpielfeld().getBreite() * 39 / 100;
-		int hudWidth = control.getDasSpielfeld().getBreite() * 26 / 100;
-		int hudHeight = control.getDasSpielfeld().getHoehe() / 10;
-		hud.setBounds(hudX, HUD_Y, hudWidth, hudHeight);
-	}
-
-	public void drawHUD() {
-		JPanel hud = createHUDJPanel();
-		createHUDLabels(hud);
-		hud.paintComponents(doubleBufferGraphics);
-// maybe do use a class field for hud and then only settext every update
-//		lblGeschwindigkeit.setText("Speed: "//
-//				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getL());
-//		lblGeschwindigkeitXY.setText("X: "//
-//				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getX()//
-//				+ "   Y: "//
-//				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getY());
-//		lblSchub.setText("Schub: " + "legacy " + "%");
-//		lblNeigung.setText("Angle: "//
-//				+ (int) (control.getDieRakete().getNeigung()) + "°");
 	}
 
 	public void drawGameStage(Punkt[] derPunkt) {
@@ -196,9 +157,10 @@ public class GUI extends JFrame {
 		int drawLocationX = (int) position.getX();
 		int drawLocationY = (int) position.getY();
 		AffineTransform backup = graphics2D.getTransform();
-		AffineTransform a = AffineTransform.getRotateInstance(Math.toRadians(neigung - 270)//
-				, mitte.getX(), mitte.getY());
-		graphics2D.setTransform(a);
+		AffineTransform affineTransform = AffineTransform//
+				.getRotateInstance(Math.toRadians(neigung - 270)//
+						, mitte.getX(), mitte.getY());
+		graphics2D.setTransform(affineTransform);
 		graphics2D.drawImage(rocketImage, drawLocationX, drawLocationY, null);
 		graphics2D.setTransform(backup);
 	}

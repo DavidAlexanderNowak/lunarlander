@@ -79,10 +79,8 @@ public class Control implements Runnable {
 		case END:
 			break;
 		default:
-
 		}
 		gui.repaint();
-		System.out.println(gameState);
 	}
 
 	private void resetPosition() {
@@ -193,10 +191,10 @@ public class Control implements Runnable {
 			gui.drawStartScreen();
 			break;
 		case GAMELOOP:
-			gui.drawHUD();
 			gui.drawGameStage(dasSpielfeld.getDerPunkt());
 			gui.drawRocket(rocket.getPosition()//
 					, rocket.getMittelpunkt(), rocket.getNeigung());
+			gui.drawHUD();
 			break;
 		case END:
 			gui.drawGameStage(dasSpielfeld.getDerPunkt());
