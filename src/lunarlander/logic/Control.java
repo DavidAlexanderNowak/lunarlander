@@ -29,10 +29,10 @@ public class Control implements Runnable, Serializable {
 	}
 
 	public Control() {
-		gameState = GameState.START;
 		initialiseGameStage();
 		rocket = new Rocket(gameStage.getGravitation());
 		gui = new GUI(this);
+		gameState = GameState.START;
 	}
 
 	public void keyPressed(int code) {
@@ -100,7 +100,7 @@ public class Control implements Runnable, Serializable {
 			}
 			break;
 		case GAMELOOP:
-			if (rocket.isLanded()) {
+			if (!rocket.isAlive() || rocket.isLanded()) {
 				gameState = GameState.END;
 			}
 			break;
@@ -114,13 +114,13 @@ public class Control implements Runnable, Serializable {
 	}
 
 	private void gameLoopInput() {
-		if (keysPressed.contains(0)) {// Schub - Leertaste
+		if (keysPressed.contains(0)) {
 			rocket.accelerate();
 		}
-		if (keysPressed.contains(1)) {// Rechts - Pfeil Rechts
+		if (keysPressed.contains(1)) {
 			rocket.steer(Rocket.Direction.RIGHT);
 		}
-		if (keysPressed.contains(2)) {// Links - Pfeil Links
+		if (keysPressed.contains(2)) {
 			rocket.steer(Rocket.Direction.LEFT);
 		}
 	}
@@ -136,23 +136,20 @@ public class Control implements Runnable, Serializable {
 		rocket.setLanded(false);
 
 		for (int i = 0; i < gameStage.getNumberOfPoints() - 1; i++) {
-			boolean landungFlach = (gameStage.getPoints()[i].getY() == gameStage.getPoints()[i + 1].getY());
+//			boolean landungFlach = (gameStage.getPoints()[i].getY() == gameStage.getPoints()[i + 1].getY());
 			if (undersideCollision(gameStage.getPoints()[i], gameStage.getPoints()[i + 1])) {
 				touchdown = true;
 			}
-			if(hitPointsCheck(gameStage.getPoints()[i], gameStage.getPoints()[i+1])) {
+			if (hitPointsCheck(gameStage.getPoints()[i], gameStage.getPoints()[i + 1])) {
 				touchdown = true;
 			}
 			if (touchdown) {
-				if (landungFlach || rocket.isLanded()) {
-					/*
-					 * Kollision auf einer flachen Fläche gilt als Landung, später noch Neigung und
-					 * Geschwindigkeit berücksichtigen
-					 */
-					rocket.setLanded(true);
-				} else {
-					rocket.setAlive(false);
-				}
+//				if (landungFlach || rocket.isLanded()) {
+//					rocket.setLanded(true);
+//				} else {
+				rocket.setAlive(false);
+//				}
+				break;
 			}
 		}
 	}
