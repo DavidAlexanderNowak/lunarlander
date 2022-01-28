@@ -156,7 +156,7 @@ public class Control implements Runnable, Serializable {
 			double yR = hitPoints[10].getY();
 
 			// Ist die Unterseite im Intervall x1 x2?
-			if ((x1 <= xL && xR <= x2) || (x1 <= xR && xL <= x2)) {
+			if (lineBetweenPoints(points[i], points[i + 1], hitPoints[9], hitPoints[10])) {
 				// Geradensteigung m und Y-Achsenabschnitt c der Unterseite ermitteln
 				double mU = (yR - yL) / (xR - xL);
 				double cU = yR - mU * xR;
@@ -188,6 +188,37 @@ public class Control implements Runnable, Serializable {
 				}
 			}
 		}
+	}
+
+	private Boolean undersideCollision(Point l1, Point l2, Point left, Point right) {
+		if (lineBetweenPoints(l1, l2, left, right)) {
+			return linesIntersect(l1, l2, left, right);
+		}
+		return false;
+	}
+
+	private boolean lineBetweenPoints(Point point1, Point point2, Point lineLeft, Point lineRight) {
+		return point1.getX() <= lineLeft.getX() && lineRight.getX() <= point2.getX()
+				|| point1.getX() <= lineRight.getX() && lineLeft.getX() <= point2.getX();
+	}
+
+	private boolean linesIntersect(Point point1, Point point2, Point lineLeft, Point lineRight) {
+		double xS = calculateIntersection(point1, point2, lineLeft, lineRight);
+		return pointInRangeOfTwoLines(xS, point1, point2, lineLeft, lineRight);
+	}
+
+	private double calculateIntersection(Point point1, Point point2, Point lineLeft, Point lineRight) {
+		double m = (point2.getY() - point1.getY()) / (point2.getX() - point1.getX());
+		double c = point1.getY() - m * point1.getX();
+		double mLine = (lineRight.getY() - lineLeft.getY()) / (lineRight.getX() - lineLeft.getX());
+		double cLine = lineRight.getY() - mLine * lineRight.getX();
+		return (cLine - c) / (m - mLine);
+	}
+
+	private boolean pointInRangeOfTwoLines(double xS, Point point1, Point point2, Point lineLeft, Point lineRight) {
+		return lineLeft.getX() <= xS && xS <= lineRight.getX()//
+				|| lineRight.getX() <= xS && xS <= lineLeft.getX()//
+						&& point1.getX() <= xS && xS <= point1.getX();
 	}
 
 	public void graphics() {
@@ -258,13 +289,6 @@ public class Control implements Runnable, Serializable {
 			gameStage.setPoint(i, p);
 		}
 
-//		für Test zwecke random Map
-//		for(int i = 1; i < dasSpielfeld.getAnzahlPunkte()-1; i++) {
-//			int x = dasSpielfeld.getBreite() / (dasSpielfeld.getAnzahlPunkte()-1) * i;
-//			int y = (int)((0.95*dasSpielfeld.getHoehe())-Math.random()*(dasSpielfeld.getHoehe()*0.75));
-//			Punkt p = new Punkt(x,y);
-//			dasSpielfeld.setPunkt(i, p);
-//		}
 	}
 
 	@Override
