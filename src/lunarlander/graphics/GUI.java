@@ -1,3 +1,5 @@
+package lunarlander.graphics;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -13,7 +15,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import lunarlander.data.Point;
+import lunarlander.logic.Control;
+import lunarlander.utilities.Utilities;
+
 public class GUI extends JFrame {
+	private static final long serialVersionUID = 1L;
+
 	private Control control;
 
 	private JPanel contentPane;
@@ -40,8 +48,8 @@ public class GUI extends JFrame {
 		setTitle("Lunar Lander");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, this.control.getDasSpielfeld().getBreite()//
-				, this.control.getDasSpielfeld().getHoehe());
+		setBounds(0, 0, this.control.getGameStage().getWidth()//
+				, this.control.getGameStage().getHeight());
 	}
 
 	private void initialiseContentPane() {
@@ -82,7 +90,7 @@ public class GUI extends JFrame {
 	}
 
 	public void drawStartScreen() {
-
+		// TODO Start screen
 	}
 
 	public void drawHUD() {
@@ -100,9 +108,9 @@ public class GUI extends JFrame {
 	}
 
 	private void calculateHudDimensions(JPanel hud) {
-		int hudX = control.getDasSpielfeld().getBreite() * 39 / 100;
-		int hudWidth = control.getDasSpielfeld().getBreite() * 26 / 100;
-		int hudHeight = control.getDasSpielfeld().getHoehe() / 10;
+		int hudX = control.getGameStage().getWidth() * 39 / 100;
+		int hudWidth = control.getGameStage().getWidth() * 26 / 100;
+		int hudHeight = control.getGameStage().getHeight() / 10;
 		hud.setBounds(hudX, HUD_Y, hudWidth, hudHeight);
 	}
 
@@ -113,13 +121,13 @@ public class GUI extends JFrame {
 		int hudHeight = hud.getHeight();
 
 		JLabel speedLabel = new JLabel("Speed: "//
-				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getL());
+				+ (int) control.getRocket().getSpeed().getLength());
 		speedLabel.setBounds(hudX, hudY, hudWidth / 2, hudHeight / 2);
 
 		JLabel axisSpeedLabel = new JLabel("X: "//
-				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getX()//
+				+ (int) control.getRocket().getSpeed().getX()//
 				+ "  Y: "//
-				+ (int) control.getDieRakete().getGeschwindigkeitsVektor().getY());
+				+ (int) control.getRocket().getSpeed().getY());
 		axisSpeedLabel.setBounds(hudX, hudY + hudHeight / 2//
 				, hudWidth / 2, hudHeight / 2);
 
@@ -128,7 +136,7 @@ public class GUI extends JFrame {
 				, hudWidth / 2, hudHeight / 2);
 
 		JLabel angleLabel = new JLabel("Angle: "//
-				+ (int) (control.getDieRakete().getNeigung()) + "°");
+				+ (int) (control.getRocket().getAngle()) + "°");
 		angleLabel.setBounds(hudX + hudWidth / 2, hudY//
 				+ hudHeight / 2, hudWidth / 2, hudHeight / 2);
 
@@ -144,7 +152,7 @@ public class GUI extends JFrame {
 		hud.add(angleLabel);
 	}
 
-	public void drawGameStage(Punkt[] derPunkt) {
+	public void drawGameStage(Point[] derPunkt) {
 		doubleBufferGraphics.setColor(Color.black);
 		for (int i = 0; i < derPunkt.length - 1; i++) {
 			doubleBufferGraphics.drawLine((int) (derPunkt[i].getX()), (int) (derPunkt[i].getY()),
@@ -152,7 +160,7 @@ public class GUI extends JFrame {
 		}
 	}
 
-	public void drawRocket(Punkt position, Punkt mitte, double neigung) {
+	public void drawRocket(Point position, Point mitte, double neigung) {
 		Graphics2D graphics2D = (Graphics2D) doubleBufferGraphics;
 		int drawLocationX = (int) position.getX();
 		int drawLocationY = (int) position.getY();
