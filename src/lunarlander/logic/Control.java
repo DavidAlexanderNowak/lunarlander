@@ -133,49 +133,16 @@ public class Control implements Runnable, Serializable {
 
 	private void touchdownCheck() {
 		boolean touchdown = false;
-		Point[] points = gameStage.getPoints();
-		Point[] hitPoints = setHitPoints();
 		rocket.setLanded(false);
 
 		for (int i = 0; i < gameStage.getNumberOfPoints() - 1; i++) {
-			double x1 = points[i].getX();
-			double y1 = points[i].getY();
-			double x2 = points[i + 1].getX();
-			double y2 = points[i + 1].getY();
-
-			double m = (y2 - y1) / (x2 - x1);
-			double c = y1 - m * x1;
-
-			boolean landungFlach = (y2 == y1);
-
-			// Kollision mit Unterseite als Gerade
-			// hitPunkt 9 und 10 sind uL und uR
-			double xL = hitPoints[9].getX();
-			double yL = hitPoints[9].getY();
-			double xR = hitPoints[10].getX();
-			double yR = hitPoints[10].getY();
-
-			// Ist die Unterseite im Intervall x1 x2?
-			if (lineBetweenPoints(points[i], points[i + 1], hitPoints[9], hitPoints[10])) {
-				// Geradensteigung m und Y-Achsenabschnitt c der Unterseite ermitteln
-				double mU = (yR - yL) / (xR - xL);
-				double cU = yR - mU * xR;
-				// Schnittstelle berechnen von Spielfeld-Gerade und gU
-				double xS = (cU - c) / (m - mU);
-				// Ist die Schnittstelle im x Intervall der Gerade des Spielfelds und
-				// Unterseite?
-				if (((xL <= xS && xS <= xR) || (xR <= xS && xS <= xL)) && (x1 <= xS && xS <= x2)) {
-					touchdown = true;
-				}
+			boolean landungFlach = (gameStage.getPoints()[i].getY() == gameStage.getPoints()[i + 1].getY());
+			if (undersideCollision(gameStage.getPoints()[i], gameStage.getPoints()[i + 1])) {
+				touchdown = true;
 			}
-
-			// Wenn mindestens einer der Kollisionspunkte auf der Geraden liegt
-			for (int j = 0; j < 11; j++) {
-				if (isPointOnLine(hitPoints[j], c, x1, x2, m)) {
-					touchdown = true;
-				}
+			if(hitPointsCheck(gameStage.getPoints()[i], gameStage.getPoints()[i+1])) {
+				touchdown = true;
 			}
-
 			if (touchdown) {
 				if (landungFlach || rocket.isLanded()) {
 					/*
@@ -190,9 +157,9 @@ public class Control implements Runnable, Serializable {
 		}
 	}
 
-	private Boolean undersideCollision(Point l1, Point l2, Point left, Point right) {
-		if (lineBetweenPoints(l1, l2, left, right)) {
-			return linesIntersect(l1, l2, left, right);
+	private boolean undersideCollision(Point point1, Point point2) {
+		if (lineBetweenPoints(point1, point2, getHitPoints()[9], getHitPoints()[10])) {
+			return linesIntersect(point1, point2, getHitPoints()[9], getHitPoints()[10]);
 		}
 		return false;
 	}
@@ -216,9 +183,20 @@ public class Control implements Runnable, Serializable {
 	}
 
 	private boolean pointInRangeOfTwoLines(double xS, Point point1, Point point2, Point lineLeft, Point lineRight) {
-		return lineLeft.getX() <= xS && xS <= lineRight.getX()//
-				|| lineRight.getX() <= xS && xS <= lineLeft.getX()//
-						&& point1.getX() <= xS && xS <= point1.getX();
+		return ((lineLeft.getX() <= xS && xS <= lineRight.getX())//
+				|| lineRight.getX() <= xS && xS <= lineLeft.getX())//
+				&& (point1.getX() <= xS && xS <= point2.getX());
+	}
+
+	private boolean hitPointsCheck(Point point1, Point point2) {
+		double m = (point2.getY() - point1.getY()) / (point2.getX() - point1.getX());
+		double c = point1.getY() - m * point1.getX();
+		for (int j = 0; j < 11; j++) {
+			if (isPointOnLine(getHitPoints()[j], c, point1.getX(), point2.getX(), m)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void graphics() {
@@ -308,16 +286,15 @@ public class Control implements Runnable, Serializable {
 		}
 	}
 
-	
 	/**
-	 * Is point on line <b>and</b> in an intervall?
-	 *  
-	 * @param p Point to check
-	 * @param c intercept of line-function
-	 * @param x1 start of intervall
-	 * @param x2 end of intervall
-	 * @param m slope of line-function
-	 * @return whether Point p is part of m*x+c and in the intervall [x1,x2]
+	 * Is point on line <b>and</b> in an interval?
+	 * 
+	 * @param p  Point to check
+	 * @param c  intercept of line-function
+	 * @param x1 start of interval
+	 * @param x2 end of interval
+	 * @param m  slope of line-function
+	 * @return whether Point p is part of m*x+c and in the interval [x1,x2]
 	 */
 	private boolean isPointOnLine(Point p, double c, double x1, double x2, double m) {
 		boolean isOnLine = false;
@@ -337,39 +314,39 @@ public class Control implements Runnable, Serializable {
 		return hitPoint;
 	}
 
-	private Point[] setHitPoints() {
-		Point[] hitPunkt = new Point[11];
+	private Point[] getHitPoints() {
+		Point[] hitPoints = new Point[11];
 		// Punkt S an der Spitze:
-		hitPunkt[0] = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle()));
+		hitPoints[0] = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle()));
 
 		// Punkte oL, oR
 		Point o = calculateHitPoint(new Point(rocket.getPositionCenter()), -27,
 				Math.toRadians(rocket.getAngle() - 180));
-		hitPunkt[1] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() - 90));
-		hitPunkt[2] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() + 90));
+		hitPoints[1] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[2] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() + 90));
 
 		// Punkte aL, aR
 		Point a = calculateHitPoint(new Point(rocket.getPositionCenter()), -10,
 				Math.toRadians(rocket.getAngle() - 180));
-		hitPunkt[3] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() - 90));
-		hitPunkt[4] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() + 90));
+		hitPoints[3] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[4] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() + 90));
 
 		// Punkte bL, bR
 		Point b = calculateHitPoint(new Point(rocket.getPositionCenter()), 8, Math.toRadians(rocket.getAngle() - 180));
-		hitPunkt[5] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() - 90));
-		hitPunkt[6] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() + 90));
+		hitPoints[5] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[6] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() + 90));
 
 		// Punkte fl, fR
 		Point f = calculateHitPoint(new Point(rocket.getPositionCenter()), 33, Math.toRadians(rocket.getAngle() - 180));
-		hitPunkt[7] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() - 90));
-		hitPunkt[8] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() + 90));
+		hitPoints[7] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[8] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() + 90));
 
 		// Punkte uL, uR
 		Point u = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle() - 180));
-		hitPunkt[9] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() - 90));
-		hitPunkt[10] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() + 90));
+		hitPoints[9] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[10] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() + 90));
 
-		return hitPunkt;
+		return hitPoints;
 	}
 
 	public GameStage getGameStage() {
