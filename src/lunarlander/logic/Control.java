@@ -12,7 +12,6 @@ import lunarlander.graphics.GUI;
 public class Control implements Runnable, Serializable {
 	private static final long serialVersionUID = 2L;
 
-	private static final boolean TRUE = true;
 	private GUI gui;
 	private Rocket rocket;
 	private GameStage gameStage;
@@ -23,16 +22,93 @@ public class Control implements Runnable, Serializable {
 		START, GAMELOOP, END
 	}
 
-	public static void main(String[] args) {
-		Thread thread = new Thread(new Control());
-		thread.start();
-	}
-
 	public Control() {
 		initialiseGameStage();
 		rocket = new Rocket(gameStage.getGravitation());
 		gui = new GUI(this);
 		gameState = GameState.START;
+	}
+
+	public static void main(String[] args) {
+		Thread thread = new Thread(new Control());
+		thread.start();
+	}
+
+	@Override
+	public void run() {
+		double timePerTick = (double) 1000000000 / 60;
+		double delta = 0;
+		long now;
+		long lastTime = System.nanoTime();
+		while (1 < 2) {
+			now = System.nanoTime();
+			delta += (now - lastTime) / timePerTick;
+			lastTime = now;
+			if (delta >= 1) {
+				update();
+				delta--;
+			}
+		}
+	}
+
+	private void update() {
+		updateGameState();
+		switch (gameState) {
+		case START:
+			resetPosition();
+			break;
+		case GAMELOOP:
+			gameLoopInput();
+			collisions();
+			break;
+		case END:
+			break;
+		default:
+		}
+		gui.repaint();
+	}
+
+	private void updateGameState() {
+		switch (gameState) {
+		case START:
+			if (keysPressed.contains(0)) {
+				gameState = GameState.GAMELOOP;
+			}
+			break;
+		case GAMELOOP:
+			if (!rocket.isAlive() || rocket.isLanded()) {
+				gameState = GameState.END;
+			}
+			break;
+		case END:
+			if (keysPressed.contains(3)) {
+				gameState = GameState.START;
+			}
+			break;
+		default:
+		}
+	}
+
+	private void resetPosition() {
+		rocket = new Rocket(gameStage.getGravitation());
+	}
+
+	private void gameLoopInput() {
+		if (keysPressed.contains(0)) {
+			rocket.accelerate();
+		}
+		if (keysPressed.contains(1)) {
+			rocket.steer(Rocket.Direction.RIGHT);
+		}
+		if (keysPressed.contains(2)) {
+			rocket.steer(Rocket.Direction.LEFT);
+		}
+	}
+
+	private void collisions() {
+		touchdownCheck();
+		rocket.sideExit(0, gameStage.getWidth());
+		rocket.positionUpdate();
 	}
 
 	public void keyPressed(int code) {
@@ -71,64 +147,25 @@ public class Control implements Runnable, Serializable {
 		}
 	}
 
-	private void update() {
-		updateGameState();
+	public void graphics() {
+		gui.clear();
 		switch (gameState) {
 		case START:
-			resetPosition();
+			gui.drawStartScreen();
 			break;
 		case GAMELOOP:
-			gameLoopInput();
-			collisions();
+			gui.drawGameStage(gameStage.getPoints());
+			gui.drawRocket(rocket.getPosition()//
+					, rocket.getPositionCenter(), rocket.getAngle());
+			gui.drawHUD();
 			break;
 		case END:
+			gui.drawGameStage(gameStage.getPoints());
+			gui.drawRocket(rocket.getPosition()//
+					, rocket.getPositionCenter(), rocket.getAngle());
 			break;
 		default:
 		}
-		gui.repaint();
-	}
-
-	private void resetPosition() {
-		rocket = new Rocket(gameStage.getGravitation());
-	}
-
-	private void updateGameState() {
-		switch (gameState) {
-		case START:
-			if (keysPressed.contains(0)) {
-				gameState = GameState.GAMELOOP;
-			}
-			break;
-		case GAMELOOP:
-			if (!rocket.isAlive() || rocket.isLanded()) {
-				gameState = GameState.END;
-			}
-			break;
-		case END:
-			if (keysPressed.contains(3)) {
-				gameState = GameState.START;
-			}
-			break;
-		default:
-		}
-	}
-
-	private void gameLoopInput() {
-		if (keysPressed.contains(0)) {
-			rocket.accelerate();
-		}
-		if (keysPressed.contains(1)) {
-			rocket.steer(Rocket.Direction.RIGHT);
-		}
-		if (keysPressed.contains(2)) {
-			rocket.steer(Rocket.Direction.LEFT);
-		}
-	}
-
-	private void collisions() {
-		touchdownCheck();
-		rocket.sideExit(0, gameStage.getWidth());
-		rocket.positionUpdate();
 	}
 
 	private void touchdownCheck() {
@@ -196,25 +233,67 @@ public class Control implements Runnable, Serializable {
 		return false;
 	}
 
-	public void graphics() {
-		gui.clear();
-		switch (gameState) {
-		case START:
-			gui.drawStartScreen();
-			break;
-		case GAMELOOP:
-			gui.drawGameStage(gameStage.getPoints());
-			gui.drawRocket(rocket.getPosition()//
-					, rocket.getPositionCenter(), rocket.getAngle());
-			gui.drawHUD();
-			break;
-		case END:
-			gui.drawGameStage(gameStage.getPoints());
-			gui.drawRocket(rocket.getPosition()//
-					, rocket.getPositionCenter(), rocket.getAngle());
-			break;
-		default:
+	/**
+	 * Is point on line <b>and</b> in an interval?
+	 * 
+	 * @param p  Point to check
+	 * @param c  intercept of line-function
+	 * @param x1 start of interval
+	 * @param x2 end of interval
+	 * @param m  slope of line-function
+	 * @return whether Point p is part of m*x+c and in the interval [x1,x2]
+	 */
+	private boolean isPointOnLine(Point p, double c, double x1, double x2, double m) {
+		boolean isOnLine = false;
+		if ((x1 <= p.getX()) && (p.getX() <= x2)) {
+			double cP = p.getY() - m * p.getX();
+			if (c <= cP) {
+				isOnLine = true;
+			}
 		}
+		return isOnLine;
+	}
+
+	private Point[] getHitPoints() {
+		Point[] hitPoints = new Point[11];
+		// Punkt S an der Spitze:
+		hitPoints[0] = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle()));
+
+		// Punkte oL, oR
+		Point o = calculateHitPoint(new Point(rocket.getPositionCenter()), -27,
+				Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[1] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[2] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() + 90));
+
+		// Punkte aL, aR
+		Point a = calculateHitPoint(new Point(rocket.getPositionCenter()), -10,
+				Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[3] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[4] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() + 90));
+
+		// Punkte bL, bR
+		Point b = calculateHitPoint(new Point(rocket.getPositionCenter()), 8, Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[5] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[6] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() + 90));
+
+		// Punkte fl, fR
+		Point f = calculateHitPoint(new Point(rocket.getPositionCenter()), 33, Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[7] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[8] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() + 90));
+
+		// Punkte uL, uR
+		Point u = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[9] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[10] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() + 90));
+
+		return hitPoints;
+	}
+
+	private Point calculateHitPoint(Point startingPoint, int distance, double angle) {
+		Point hitPoint = new Point(false, startingPoint.getX(), startingPoint.getY());
+		Point vector = new Point(true, distance, angle);
+		hitPoint.addVector(vector);
+		return hitPoint;
 	}
 
 	private void initialiseGameStage() {
@@ -264,86 +343,6 @@ public class Control implements Runnable, Serializable {
 			gameStage.setPoint(i, p);
 		}
 
-	}
-
-	@Override
-	public void run() {
-		double timePerTick = (double) 1000000000 / 60;
-		double delta = 0;
-		long now;
-		long lastTime = System.nanoTime();
-		while (TRUE) {
-			now = System.nanoTime();
-			delta += (now - lastTime) / timePerTick;
-			lastTime = now;
-			if (delta >= 1) {
-				update();
-				delta--;
-			}
-		}
-	}
-
-	/**
-	 * Is point on line <b>and</b> in an interval?
-	 * 
-	 * @param p  Point to check
-	 * @param c  intercept of line-function
-	 * @param x1 start of interval
-	 * @param x2 end of interval
-	 * @param m  slope of line-function
-	 * @return whether Point p is part of m*x+c and in the interval [x1,x2]
-	 */
-	private boolean isPointOnLine(Point p, double c, double x1, double x2, double m) {
-		boolean isOnLine = false;
-		if ((x1 <= p.getX()) && (p.getX() <= x2)) {
-			double cP = p.getY() - m * p.getX();
-			if (c <= cP) {
-				isOnLine = true;
-			}
-		}
-		return isOnLine;
-	}
-
-	private Point calculateHitPoint(Point startingPoint, int distance, double angle) {
-		Point hitPoint = new Point(false, startingPoint.getX(), startingPoint.getY());
-		Point vector = new Point(true, distance, angle);
-		hitPoint.addVector(vector);
-		return hitPoint;
-	}
-
-	private Point[] getHitPoints() {
-		Point[] hitPoints = new Point[11];
-		// Punkt S an der Spitze:
-		hitPoints[0] = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle()));
-
-		// Punkte oL, oR
-		Point o = calculateHitPoint(new Point(rocket.getPositionCenter()), -27,
-				Math.toRadians(rocket.getAngle() - 180));
-		hitPoints[1] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() - 90));
-		hitPoints[2] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() + 90));
-
-		// Punkte aL, aR
-		Point a = calculateHitPoint(new Point(rocket.getPositionCenter()), -10,
-				Math.toRadians(rocket.getAngle() - 180));
-		hitPoints[3] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() - 90));
-		hitPoints[4] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() + 90));
-
-		// Punkte bL, bR
-		Point b = calculateHitPoint(new Point(rocket.getPositionCenter()), 8, Math.toRadians(rocket.getAngle() - 180));
-		hitPoints[5] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() - 90));
-		hitPoints[6] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() + 90));
-
-		// Punkte fl, fR
-		Point f = calculateHitPoint(new Point(rocket.getPositionCenter()), 33, Math.toRadians(rocket.getAngle() - 180));
-		hitPoints[7] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() - 90));
-		hitPoints[8] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() + 90));
-
-		// Punkte uL, uR
-		Point u = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle() - 180));
-		hitPoints[9] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() - 90));
-		hitPoints[10] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() + 90));
-
-		return hitPoints;
 	}
 
 	public GameStage getGameStage() {
