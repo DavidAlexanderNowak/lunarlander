@@ -90,7 +90,40 @@ public class GUI extends JFrame {
 	}
 
 	public void drawStartScreen() {
-		// TODO Start screen
+		JPanel startScreen = createStartScreenJPanel();
+		createStartScreenLabels(startScreen);
+		startScreen.paintComponents(doubleBufferGraphics);
+	}
+
+	private JPanel createStartScreenJPanel() {
+		JPanel startScreenJPanel = new JPanel();
+		calculateStartScreenDimensions(startScreenJPanel);
+		contentPane.add(startScreenJPanel);
+		startScreenJPanel.setLayout(null);
+		return startScreenJPanel;
+	}
+
+	private void calculateStartScreenDimensions(JPanel startScreen) {
+		int x = control.getGameStage().getWidth() * 40 / 100;
+		int y = control.getGameStage().getHeight() * 20 / 100;
+		int width = control.getGameStage().getWidth() * 20 / 100;
+		int height = control.getGameStage().getHeight() / 10;
+		startScreen.setBounds(x, y, width, height);
+	}
+
+	private void createStartScreenLabels(JPanel startScreen) {
+		int x = startScreen.getX();
+		int y = startScreen.getY();
+		int width = startScreen.getWidth();
+		int height = startScreen.getHeight();
+
+		JLabel label = new JLabel("Press 'SPACE' to start!");
+		label.setBounds(x, y, width, height);
+
+		Font labelFont = Utilities.createFont(label);
+		label.setFont(labelFont);
+
+		startScreen.add(label);
 	}
 
 	public void drawHUD() {

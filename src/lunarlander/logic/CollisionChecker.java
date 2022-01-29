@@ -5,18 +5,13 @@ import lunarlander.data.Point;
 public class CollisionChecker {
 
 	private Control control;
-	private boolean touchdown;
 
 	public CollisionChecker(Control control) {
 		this.control = control;
-		touchdown = false;
-	}
-
-	public boolean isTouchedDown() {
-		return touchdown;
 	}
 
 	public void check() {
+		boolean touchdown = false;
 		control.getRocket().setLanded(false);
 		for (int i = 0; i < control.getGameStage().getNumberOfPoints() - 1; i++) {
 			if (undersideCollision(control.getGameStage().getPoints()[i], control.getGameStage().getPoints()[i + 1])) {
