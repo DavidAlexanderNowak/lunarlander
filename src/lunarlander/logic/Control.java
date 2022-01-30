@@ -18,17 +18,19 @@ public class Control implements Runnable, Serializable {
 	private CollisionChecker collisionChecker;
 	private HashSet<Integer> keysPressed = new HashSet<>();
 	private GameState gameState;
+	private boolean closed;
 
 	private enum GameState {
 		START, GAMELOOP, END
 	}
 
 	public Control() {
+		closed = false;
+		gameState = GameState.START;
 		initialiseGameStage();
 		rocket = new Rocket(gameStage.getGravitation());
 		gui = new GUI(this);
 		collisionChecker = new CollisionChecker(this);
-		gameState = GameState.START;
 	}
 
 	public static void main(String[] args) {
@@ -42,7 +44,7 @@ public class Control implements Runnable, Serializable {
 		double delta = 0;
 		long now;
 		long lastTime = System.nanoTime();
-		while (1 < 2) {
+		while (!closed) {
 			now = System.nanoTime();
 			delta += (now - lastTime) / timePerTick;
 			lastTime = now;
@@ -105,6 +107,9 @@ public class Control implements Runnable, Serializable {
 		if (keysPressed.contains(2)) {
 			rocket.steer(Rocket.Direction.LEFT);
 		}
+		if (keysPressed.contains(4)) {
+			rocket.resetOrientation();
+		}
 	}
 
 	private void collisions() {
@@ -127,6 +132,9 @@ public class Control implements Runnable, Serializable {
 		case KeyEvent.VK_ENTER:
 			keysPressed.add(3);
 			break;
+		case KeyEvent.VK_DOWN:
+			keysPressed.add(4);
+			break;
 		default:
 		}
 	}
@@ -144,6 +152,9 @@ public class Control implements Runnable, Serializable {
 			break;
 		case KeyEvent.VK_ENTER:
 			keysPressed.remove(3);
+			break;
+		case KeyEvent.VK_DOWN:
+			keysPressed.remove(4);
 			break;
 		default:
 		}
@@ -171,7 +182,7 @@ public class Control implements Runnable, Serializable {
 	}
 
 	private void initialiseGameStage() {
-		gameStage = new GameStage(0.02, 108 * 8);
+		gameStage = new GameStage(0.05, 108 * 8);
 		gameStage.setNumberOfPoints(30);
 		int breite = gameStage.getWidth();
 		int hoehe = gameStage.getHeight();
@@ -217,6 +228,10 @@ public class Control implements Runnable, Serializable {
 			gameStage.setPoint(i, p);
 		}
 
+	}
+
+	public void setClosed(boolean closed) {
+		this.closed = closed;
 	}
 
 	public GameStage getGameStage() {

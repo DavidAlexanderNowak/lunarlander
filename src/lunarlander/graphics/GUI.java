@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -40,7 +42,7 @@ public class GUI extends JFrame {
 		rocketImage = Utilities.loadImage("/player.png");
 		initialiseWindowSettings();
 		initialiseContentPane();
-		initialiseKeyListeners();
+		initialiseListeners();
 		setVisible(true);
 	}
 
@@ -59,7 +61,7 @@ public class GUI extends JFrame {
 		setLayout(null);
 	}
 
-	private void initialiseKeyListeners() {
+	private void initialiseListeners() {
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -69,6 +71,37 @@ public class GUI extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				control.keyReleased(e.getKeyCode());
+			}
+		});
+		addWindowListener(new WindowListener() {
+			@Override
+			public void windowOpened(WindowEvent e) {
+				control.setClosed(false);
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				control.setClosed(true);
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
 			}
 		});
 	}
