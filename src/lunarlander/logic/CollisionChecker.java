@@ -114,7 +114,7 @@ public class CollisionChecker {
 			}
 			return (flatLeft || flatRight) && !intersect && (point3 != null || flatLeft);
 		}
-		return point1.getY() != point2.getY();
+		return point1.getY() == point2.getY();
 	}
 
 	private boolean lineBetweenPoints(Point point1, Point point2, Point lineLeft, Point lineRight) {
