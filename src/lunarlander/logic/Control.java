@@ -164,7 +164,7 @@ public class Control implements Runnable, Serializable {
 		gui.clear();
 		switch (gameState) {
 		case START:
-			gui.drawStartScreen();
+			gui.drawTextScreen("Press 'SPACE' to start!");
 			break;
 		case GAMELOOP:
 			gui.drawGameStage(gameStage.getPoints());
@@ -173,9 +173,17 @@ public class Control implements Runnable, Serializable {
 			gui.drawHUD();
 			break;
 		case END:
+			String text;
+			if (rocket.isAlive()) {
+				text = "Successful landing.";
+			} else {
+				text = "You died.";
+			}
+
 			gui.drawGameStage(gameStage.getPoints());
 			gui.drawRocket(rocket.getPosition()//
 					, rocket.getPositionCenter(), rocket.getAngle());
+			gui.drawTextScreen(text, "Press 'ENTER' to restart!");
 			break;
 		default:
 		}
