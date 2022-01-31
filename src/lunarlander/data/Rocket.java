@@ -72,6 +72,12 @@ public class Rocket implements Serializable {
 		}
 	}
 
+	public void resetOrientation() {
+		if (260 < angle && angle < 280) {
+			angle = 270;
+		}
+	}
+
 	public Point getPosition() {
 		return position;
 	}

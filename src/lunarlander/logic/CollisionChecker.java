@@ -21,20 +21,38 @@ public class CollisionChecker {
 				touchdown = true;
 			}
 			if (touchdown) {
-				control.getRocket().setAlive(false);
+				Point point3 = null;
+				if (i < control.getGameStage().getNumberOfPoints() - 2) {
+					point3 = control.getGameStage().getPoints()[i + 2];
+				}
+				control.getRocket().setLanded(successfulLandingCheck(control.getGameStage().getPoints()[i]//
+						, control.getGameStage().getPoints()[i + 1], point3));
+				control.getRocket().setAlive(control.getRocket().isLanded());
 				break;
 			}
 		}
 	}
 
 	private boolean undersideCollision(Point point1, Point point2) {
-		if (lineBetweenPoints(point1, point2, getHitPoints()[9], getHitPoints()[10])) {
+		if (linesOverlapX(point1, point2, getHitPoints()[9], getHitPoints()[10])) {
 			return linesIntersect(point1, point2, getHitPoints()[9], getHitPoints()[10]);
 		}
 		return false;
 	}
 
-	private boolean lineBetweenPoints(Point point1, Point point2, Point lineLeft, Point lineRight) {
+	/**
+	 * First line is part of the gamestage, second line is a line in the collision
+	 * model of the rocket
+	 * 
+	 * 
+	 * @param point1    start of first line
+	 * @param point2    end of first line
+	 * @param lineLeft  start of second line
+	 * @param lineRight end of second line
+	 * @return if any part of one line is in the same x-range as any part of the
+	 *         other line
+	 */
+	private boolean linesOverlapX(Point point1, Point point2, Point lineLeft, Point lineRight) {
 		return point1.getX() <= lineLeft.getX() && lineRight.getX() <= point2.getX()
 				|| point1.getX() <= lineRight.getX() && lineLeft.getX() <= point2.getX();
 	}
@@ -78,6 +96,32 @@ public class CollisionChecker {
 			}
 		}
 		return isOnLine;
+	}
+
+	private boolean successfulLandingCheck(Point point1, Point point2, Point point3) {
+		if (control.getRocket().getAngle() != 270) {
+			return false;
+		}
+		if (control.getRocket().getSpeed().getLength() > 1.5) {
+			return false;
+		}
+		if (!lineBetweenPoints(point1, point2, getHitPoints()[9], getHitPoints()[10])) {
+			boolean intersect = false;
+			boolean flatLeft = point1.getY() == point2.getY();
+			boolean flatRight = point3 == null || point2.getY() == point3.getY();
+			if (!flatLeft) {
+				intersect = point1.getY() < getHitPoints()[9].getY();
+			}
+			if (!flatRight) {
+				intersect = intersect || getHitPoints()[9].getY() > point3.getY();
+			}
+			return (flatLeft || flatRight) && !intersect && (point3 != null || flatLeft);
+		}
+		return point1.getY() == point2.getY();
+	}
+
+	private boolean lineBetweenPoints(Point point1, Point point2, Point lineLeft, Point lineRight) {
+		return point1.getX() <= lineLeft.getX() && lineRight.getX() <= point2.getX();
 	}
 
 	private Point[] getHitPoints() {
