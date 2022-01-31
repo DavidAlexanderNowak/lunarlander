@@ -49,7 +49,7 @@ public class GUI extends JFrame {
 
 	private void initialiseWindowSettings() {
 		setTitle("Lunar Lander");
-		setResizable(false);
+		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, this.control.getGameStage().getWidth()//
 				, this.control.getGameStage().getHeight());
