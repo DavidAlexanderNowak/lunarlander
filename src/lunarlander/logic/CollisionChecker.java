@@ -25,7 +25,7 @@ public class CollisionChecker {
 				if (i < control.getGameStage().getNumberOfPoints() - 2) {
 					point3 = control.getGameStage().getPoints()[i + 2];
 				}
-				control.getRocket().setLanded(flatLandingCheck(control.getGameStage().getPoints()[i]//
+				control.getRocket().setLanded(successfulLandingCheck(control.getGameStage().getPoints()[i]//
 						, control.getGameStage().getPoints()[i + 1], point3));
 				control.getRocket().setAlive(control.getRocket().isLanded());
 				break;
@@ -98,8 +98,11 @@ public class CollisionChecker {
 		return isOnLine;
 	}
 
-	private boolean flatLandingCheck(Point point1, Point point2, Point point3) {
+	private boolean successfulLandingCheck(Point point1, Point point2, Point point3) {
 		if (control.getRocket().getAngle() != 270) {
+			return false;
+		}
+		if (control.getRocket().getSpeed().getLength() > 1.5) {
 			return false;
 		}
 		if (!lineBetweenPoints(point1, point2, getHitPoints()[9], getHitPoints()[10])) {
