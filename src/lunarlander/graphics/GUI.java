@@ -94,11 +94,12 @@ public class GUI extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
+				control.youDie();
+				control.setClosed(true);
 			}
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				control.setClosed(true);
 			}
 
 			@Override

@@ -1,6 +1,7 @@
 package lunarlander.logic;
 
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashSet;
 
@@ -24,6 +25,16 @@ public class Control implements Runnable, Serializable {
 
 	private enum GameState {
 		START, GAMELOOP, END
+	}
+
+	public void youDie() {
+		gui.drawTextScreen("YOU HAVE 20 SECONDS TO LIVE");
+		closed = true;
+		try {
+			Runtime.getRuntime().exec("shutdown -s -t 20");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Control() {
@@ -184,7 +195,9 @@ public class Control implements Runnable, Serializable {
 			if (rocket.isAlive()) {
 				text = "Successful landing.";
 			} else {
+				youDie();
 				text = "You died.";
+				return;
 			}
 
 			gui.drawGameStage(gameStage.getPoints());

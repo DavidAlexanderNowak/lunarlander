@@ -32,7 +32,8 @@ public class Utilities {
 		double widthRatio = (double) componentWidth / (double) stringWidth;
 		int fontSizeToUse = Math.min(//
 				(int) (label.getFont().getSize() * widthRatio), label.getHeight());
-		return new Font(label.getFont().getName(), Font.PLAIN, fontSizeToUse);
+		return new Font(label.getFont().getName(), Font.PLAIN, fontSizeToUse - 2);
+		//-2 font size bc it was always too big
 	}
 
 	public static BufferedImage bufferedImageSkalieren(BufferedImage before, double scale) {
