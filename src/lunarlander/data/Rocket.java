@@ -58,6 +58,26 @@ public class Rocket implements Serializable {
 		return value;
 	}
 
+	/**
+	 * to be used or the HUD
+	 * 
+	 * @return returns orientation in Range of -180 to 180
+	 */
+	public String getTrueOrientation() {
+		int orientation = (int) angle;
+		// 270 to 90 is 0 to 180
+		// 90 to 0 and 360 to 270 is 0 to -180
+		if (orientation == 270) {
+			return "0";
+		}
+		if (270 >= orientation && orientation >= 90) {
+			int value = (int) (keepDegreesInRange(orientation - 270) - 180);
+			value = 180 - value;
+			return "-" + value;
+		}
+		return "+" + (int) (keepDegreesInRange(orientation - 270));
+	}
+
 	public void positionUpdate() {
 		speed.addVector(gravitation);
 		position.addVector(speed);
