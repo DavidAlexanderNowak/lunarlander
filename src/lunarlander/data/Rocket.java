@@ -116,6 +116,15 @@ public class Rocket implements Serializable {
 		return speed;
 	}
 
+	/**
+	 * returns the velocity as double directly.
+	 * 
+	 * @return
+	 */
+	public double getVelocity() {
+		return speed.getLength();
+	}
+
 	public boolean isLanded() {
 		return landed;
 	}

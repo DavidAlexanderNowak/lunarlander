@@ -12,7 +12,6 @@ import javax.swing.JLabel;
 public class Utilities {
 
 	private Utilities() {
-
 	}
 
 	public static BufferedImage loadImage(String path) {
@@ -25,27 +24,33 @@ public class Utilities {
 		return null;
 	}
 
-	public static Font createFont(JLabel label) {
-		int stringWidth = label.getFontMetrics(label.getFont())//
-				.stringWidth(label.getText());
-		int componentWidth = label.getWidth();
-		double widthRatio = (double) componentWidth / (double) stringWidth;
+	/**
+	 * returns a {@link Font} that makes the JLabel's text fit its size
+	 * 
+	 * @param label
+	 * @return fitting {@link Font}
+	 */
+	public static Font createFittingFont(JLabel label) {
+		double widthRatio = (double) label.getWidth() / //
+				(double) label.getFontMetrics(label.getFont()).stringWidth(label.getText());
 		int fontSizeToUse = Math.min(//
 				(int) (label.getFont().getSize() * widthRatio), label.getHeight());
 		return new Font(label.getFont().getName(), Font.PLAIN, fontSizeToUse);
 	}
 
-	public static BufferedImage bufferedImageSkalieren(BufferedImage before, double scale) {
-		int w = before.getWidth();
-		int h = before.getHeight();
-		// Create a new image of the proper size
-		int w2 = (int) (w * scale);
-		int h2 = (int) (h * scale);
-		BufferedImage after = new BufferedImage(w2, h2, BufferedImage.TYPE_INT_ARGB);
+	/**
+	 * return a scaled {@link BufferedImage}
+	 * 
+	 * @param bufferedImage {@link BufferedImage} to be scaled
+	 * @param scale         scale
+	 * @return {@link BufferedImage} scaled correctly
+	 */
+	public static BufferedImage scaleImage(BufferedImage bufferedImage, double scale) {
+		BufferedImage resultingBufferedImage = new BufferedImage((int) (bufferedImage.getWidth() * scale),
+				(int) (bufferedImage.getHeight() * scale), BufferedImage.TYPE_INT_ARGB);
 		AffineTransform scaleInstance = AffineTransform.getScaleInstance(scale, scale);
 		AffineTransformOp scaleOp = new AffineTransformOp(scaleInstance, AffineTransformOp.TYPE_BILINEAR);
-
-		scaleOp.filter(before, after);
-		return after;
+		scaleOp.filter(bufferedImage, resultingBufferedImage);
+		return resultingBufferedImage;
 	}
 }

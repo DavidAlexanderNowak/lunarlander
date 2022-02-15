@@ -27,9 +27,24 @@ public class GUI extends JFrame {
 
 	private Control control;
 
+	public Control getControl() {
+		return control;
+	}
+
+	private HUD hud;
+
 	private JPanel contentPane;
+
+	public JPanel getContentPane() {
+		return contentPane;
+	}
+
 	private Image doubleBufferImage;
 	private Graphics doubleBufferGraphics;
+
+	public Graphics getDoubleBufferGraphics() {
+		return doubleBufferGraphics;
+	}
 
 	private BufferedImage rocketImage;
 	private int HUD_Y = 30;
@@ -40,6 +55,7 @@ public class GUI extends JFrame {
 
 	private void initialise(Control control) {
 		this.control = control;
+		this.hud = new HUD(this);
 		rocketImage = Utilities.loadImage("/player.png");
 		initialiseWindowSettings();
 		initialiseContentPane();
@@ -123,63 +139,8 @@ public class GUI extends JFrame {
 		doubleBufferGraphics.fillRect(0, 0, getSize().width, getSize().height);
 	}
 
-	public void drawHUD() {
-		JPanel hud = createHudJPanel();
-		createHudLabels(hud);
-		hud.paintComponents(doubleBufferGraphics);
-	}
-
-	private JPanel createHudJPanel() {
-		JPanel hudJPanel = new JPanel();
-		calculateHudDimensions(hudJPanel);
-		contentPane.add(hudJPanel);
-		hudJPanel.setLayout(null);
-		return hudJPanel;
-	}
-
-	private void calculateHudDimensions(JPanel hud) {
-		int hudX = control.getGameStage().getWidth() * 39 / 100;
-		int hudWidth = control.getGameStage().getWidth() * 26 / 100;
-		int hudHeight = control.getGameStage().getHeight() / 10;
-		hud.setBounds(hudX, HUD_Y, hudWidth, hudHeight);
-	}
-
-	private void createHudLabels(JPanel hud) {
-		int hudX = hud.getX();
-		int hudY = hud.getY();
-		int hudWidth = hud.getWidth();
-		int hudHeight = hud.getHeight();
-
-		JLabel speedLabel = new JLabel("Speed: "//
-				+ (int) control.getRocket().getSpeed().getLength());
-		speedLabel.setBounds(hudX, hudY, hudWidth / 2, hudHeight / 2);
-
-		JLabel axisSpeedLabel = new JLabel("X: "//
-				+ (int) control.getRocket().getSpeed().getX()//
-				+ "  Y: "//
-				+ (int) control.getRocket().getSpeed().getY());
-		axisSpeedLabel.setBounds(hudX, hudY + hudHeight / 2//
-				, hudWidth / 2, hudHeight / 2);
-
-		JLabel legacyElementLabel = new JLabel("Schub: " + "legacy " + "%");
-		legacyElementLabel.setBounds(hudX + hudWidth / 2, hudY//
-				, hudWidth / 2, hudHeight / 2);
-
-		JLabel angleLabel = new JLabel("Angle: "//
-				+ control.getRocket().getTrueOrientation() + "°");
-		angleLabel.setBounds(hudX + hudWidth / 2, hudY//
-				+ hudHeight / 2, hudWidth / 2, hudHeight / 2);
-
-		Font labelFont = Utilities.createFont(legacyElementLabel);
-		speedLabel.setFont(labelFont);
-		axisSpeedLabel.setFont(labelFont);
-		angleLabel.setFont(labelFont);
-//		legacyElementLabel.setFont(labelFont);
-
-		hud.add(speedLabel);
-		hud.add(axisSpeedLabel);
-//		hud.add(legacyElementLabel);
-		hud.add(angleLabel);
+	public void drawHUD() {// TODO WIP
+		hud.update();
 	}
 
 	public void drawGameStage(Point[] derPunkt) {
@@ -246,7 +207,7 @@ public class GUI extends JFrame {
 		JLabel label1 = new JLabel(text[0], SwingConstants.CENTER);
 		label1.setBounds(x, y, width, height / text.length);
 
-		Font labelFont = Utilities.createFont(label1);
+		Font labelFont = Utilities.createFittingFont(label1);
 		label1.setFont(labelFont);
 
 		screen.add(label1);
@@ -255,9 +216,10 @@ public class GUI extends JFrame {
 			JLabel label2 = new JLabel(text[1], SwingConstants.CENTER);
 			label2.setBounds(x, y + height / text.length, width, height / text.length);
 
-			labelFont = Utilities.createFont(label2);
+			labelFont = Utilities.createFittingFont(label2);
 			label2.setFont(labelFont);
 			screen.add(label2);
 		}
 	}
+
 }
