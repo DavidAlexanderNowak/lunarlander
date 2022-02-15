@@ -49,7 +49,7 @@ public class GUI extends JFrame {
 
 	private void initialiseWindowSettings() {
 		setTitle("Lunar Lander");
-		setResizable(false);
+		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, this.control.getGameStage().getWidth()//
 				, this.control.getGameStage().getHeight());
@@ -166,7 +166,7 @@ public class GUI extends JFrame {
 				, hudWidth / 2, hudHeight / 2);
 
 		JLabel angleLabel = new JLabel("Angle: "//
-				+ (int) (control.getRocket().getAngle()) + "°");
+				+ control.getRocket().getTrueOrientation() + "Â°");
 		angleLabel.setBounds(hudX + hudWidth / 2, hudY//
 				+ hudHeight / 2, hudWidth / 2, hudHeight / 2);
 
@@ -174,11 +174,11 @@ public class GUI extends JFrame {
 		speedLabel.setFont(labelFont);
 		axisSpeedLabel.setFont(labelFont);
 		angleLabel.setFont(labelFont);
-		legacyElementLabel.setFont(labelFont);
+//		legacyElementLabel.setFont(labelFont);
 
 		hud.add(speedLabel);
 		hud.add(axisSpeedLabel);
-		hud.add(legacyElementLabel);
+//		hud.add(legacyElementLabel);
 		hud.add(angleLabel);
 	}
 

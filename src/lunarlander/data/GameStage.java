@@ -10,10 +10,10 @@ public class GameStage implements Serializable {
 	private double gravitation;
 	private Point[] points;
 
-	public GameStage(double gravitation, int hoehe) {
+	public GameStage(double gravitation, int height, int width) {
 		this.gravitation = gravitation;
-		this.height = hoehe;
-		width = hoehe * 16 / 9;
+		this.height = height;
+		this.width = width;
 	}
 
 	public int getWidth() {
