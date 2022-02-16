@@ -29,10 +29,10 @@ public class HUD {
 	}
 
 	private void updateLocation() {
-		y = gui.getControl().getGameStage().getHeight() / 100 + 30;
-		x = gui.getControl().getGameStage().getWidth() * 39 / 100;
-		width = gui.getControl().getGameStage().getWidth() * 26 / 100;
-		height = gui.getControl().getGameStage().getHeight() / 10;
+		y = gui.getControl().getGameStageLogic().getHeight() / 100 + 30;
+		x = gui.getControl().getGameStageLogic().getWidth() * 39 / 100;
+		width = gui.getControl().getGameStageLogic().getWidth() * 26 / 100;
+		height = gui.getControl().getGameStageLogic().getHeight() / 10;
 	}
 
 	public void update() {
@@ -48,10 +48,10 @@ public class HUD {
 		Font labelFont = Utilities.createFittingFont(createLabel(null, "FontCalibration", this.x + this.width / 2//
 				, this.y, this.width / 2, this.height / 2));
 
-		String velocityString = "Velocity: " + (int) gui.getControl().getRocket().getVelocity();
-		String axisVelocityString = "X: " + (int) gui.getControl().getRocket().getSpeed().getX()//
-				+ "  Y: " + (int) gui.getControl().getRocket().getSpeed().getY();
-		String orientationString = "Angle: " + gui.getControl().getRocket().getTrueOrientation() + "°";
+		String velocityString = "Velocity: " + (int) gui.getControl().getRocketLogic().getRocket().getVelocity();
+		String axisVelocityString = "X: " + (int) gui.getControl().getRocketLogic().getRocket().getSpeed().getX()//
+				+ "  Y: " + (int) gui.getControl().getRocketLogic().getRocket().getSpeed().getY();
+		String orientationString = "Angle: " + gui.getControl().getRocketLogic().getRocket().getTrueOrientation() + "°";
 
 		createLabel(labelFont, velocityString, x, y, width / 2, height / 2);
 		createLabel(labelFont, axisVelocityString, x, y + height / 2, width / 2, height / 2);

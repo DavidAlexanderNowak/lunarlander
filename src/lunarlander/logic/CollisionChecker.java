@@ -1,36 +1,51 @@
 package lunarlander.logic;
 
 import lunarlander.data.Point;
+import lunarlander.data.Rocket;
+import lunarlander.logic.RocketLogic.RocketState;
 
 public class CollisionChecker {
 
 	private Control control;
+	private Rocket rocket;
+	private Point[] gameStagePoints;
 
-	public CollisionChecker(Control control) {
+	public CollisionChecker(Rocket rocket, Control control) {
+		this.rocket = rocket;
 		this.control = control;
+		this.gameStagePoints = control.getGameStageLogic().getPoints();
 	}
 
-	public void check() {
+	public RocketState check() {
+		this.gameStagePoints = control.getGameStageLogic().getPoints();
+		RocketState rocketState;
 		boolean touchdown = false;
-		control.getRocket().setLanded(false);
-		for (int i = 0; i < control.getGameStage().getNumberOfPoints() - 1; i++) {
-			if (undersideCollision(control.getGameStage().getPoints()[i], control.getGameStage().getPoints()[i + 1])) {
+		rocket.setLanded(false);
+		for (int i = 0; i < gameStagePoints.length - 1; i++) {
+			if (undersideCollision(gameStagePoints[i], gameStagePoints[i + 1])) {
 				touchdown = true;
 			}
-			if (hitPointsCheck(control.getGameStage().getPoints()[i], control.getGameStage().getPoints()[i + 1])) {
+			if (hitPointsCheck(gameStagePoints[i], gameStagePoints[i + 1])) {
 				touchdown = true;
 			}
 			if (touchdown) {
 				Point point3 = null;
-				if (i < control.getGameStage().getNumberOfPoints() - 2) {
-					point3 = control.getGameStage().getPoints()[i + 2];
+				if (i < gameStagePoints.length - 2) {
+					point3 = gameStagePoints[i + 2];
 				}
-				control.getRocket().setLanded(successfulLandingCheck(control.getGameStage().getPoints()[i]//
-						, control.getGameStage().getPoints()[i + 1], point3));
-				control.getRocket().setAlive(control.getRocket().isLanded());
+				rocket.setLanded(successfulLandingCheck(gameStagePoints[i], gameStagePoints[i + 1], point3));
+				rocket.setAlive(rocket.isLanded());
 				break;
 			}
 		}
+		if (!rocket.isAlive()) {
+			rocketState = RocketState.CRASHED;
+		} else if (rocket.isLanded()) {
+			rocketState = RocketState.LANDED;
+		} else {
+			rocketState = RocketState.FLYING;
+		}
+		return rocketState;
 	}
 
 	private boolean undersideCollision(Point point1, Point point2) {
@@ -99,10 +114,10 @@ public class CollisionChecker {
 	}
 
 	private boolean successfulLandingCheck(Point point1, Point point2, Point point3) {
-		if (control.getRocket().getAngle() != 270) {
+		if (rocket.getAngle() != 270) {
 			return false;
 		}
-		if (control.getRocket().getSpeed().getLength() > 1.5) {
+		if (rocket.getSpeed().getLength() > 1.5) {
 			return false;
 		}
 		if (!lineBetweenPoints(point1, point2, getHitPoints()[9], getHitPoints()[10])) {
@@ -127,38 +142,34 @@ public class CollisionChecker {
 	private Point[] getHitPoints() {
 		Point[] hitPoints = new Point[11];
 		// Punkt S an der Spitze:
-		hitPoints[0] = calculateHitPoint(new Point(control.getRocket().getPositionCenter()), 50,
-				Math.toRadians(control.getRocket().getAngle()));
+		hitPoints[0] = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle()));
 
 		// Punkte oL, oR
-		Point o = calculateHitPoint(new Point(control.getRocket().getPositionCenter()), -27,
-				Math.toRadians(control.getRocket().getAngle() - 180));
-		hitPoints[1] = calculateHitPoint(new Point(o), 20, Math.toRadians(control.getRocket().getAngle() - 90));
-		hitPoints[2] = calculateHitPoint(new Point(o), 20, Math.toRadians(control.getRocket().getAngle() + 90));
+		Point o = calculateHitPoint(new Point(rocket.getPositionCenter()), -27,
+				Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[1] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[2] = calculateHitPoint(new Point(o), 20, Math.toRadians(rocket.getAngle() + 90));
 
 		// Punkte aL, aR
-		Point a = calculateHitPoint(new Point(control.getRocket().getPositionCenter()), -10,
-				Math.toRadians(control.getRocket().getAngle() - 180));
-		hitPoints[3] = calculateHitPoint(new Point(a), 20, Math.toRadians(control.getRocket().getAngle() - 90));
-		hitPoints[4] = calculateHitPoint(new Point(a), 20, Math.toRadians(control.getRocket().getAngle() + 90));
+		Point a = calculateHitPoint(new Point(rocket.getPositionCenter()), -10,
+				Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[3] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[4] = calculateHitPoint(new Point(a), 20, Math.toRadians(rocket.getAngle() + 90));
 
 		// Punkte bL, bR
-		Point b = calculateHitPoint(new Point(control.getRocket().getPositionCenter()), 8,
-				Math.toRadians(control.getRocket().getAngle() - 180));
-		hitPoints[5] = calculateHitPoint(new Point(b), 25, Math.toRadians(control.getRocket().getAngle() - 90));
-		hitPoints[6] = calculateHitPoint(new Point(b), 25, Math.toRadians(control.getRocket().getAngle() + 90));
+		Point b = calculateHitPoint(new Point(rocket.getPositionCenter()), 8, Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[5] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[6] = calculateHitPoint(new Point(b), 25, Math.toRadians(rocket.getAngle() + 90));
 
 		// Punkte fl, fR
-		Point f = calculateHitPoint(new Point(control.getRocket().getPositionCenter()), 33,
-				Math.toRadians(control.getRocket().getAngle() - 180));
-		hitPoints[7] = calculateHitPoint(new Point(f), 30, Math.toRadians(control.getRocket().getAngle() - 90));
-		hitPoints[8] = calculateHitPoint(new Point(f), 30, Math.toRadians(control.getRocket().getAngle() + 90));
+		Point f = calculateHitPoint(new Point(rocket.getPositionCenter()), 33, Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[7] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[8] = calculateHitPoint(new Point(f), 30, Math.toRadians(rocket.getAngle() + 90));
 
 		// Punkte uL, uR
-		Point u = calculateHitPoint(new Point(control.getRocket().getPositionCenter()), 50,
-				Math.toRadians(control.getRocket().getAngle() - 180));
-		hitPoints[9] = calculateHitPoint(new Point(u), 20, Math.toRadians(control.getRocket().getAngle() - 90));
-		hitPoints[10] = calculateHitPoint(new Point(u), 20, Math.toRadians(control.getRocket().getAngle() + 90));
+		Point u = calculateHitPoint(new Point(rocket.getPositionCenter()), 50, Math.toRadians(rocket.getAngle() - 180));
+		hitPoints[9] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() - 90));
+		hitPoints[10] = calculateHitPoint(new Point(u), 20, Math.toRadians(rocket.getAngle() + 90));
 
 		return hitPoints;
 	}

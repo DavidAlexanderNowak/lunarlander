@@ -16,38 +16,19 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 
+import lunarlander.constants.Constants;
 import lunarlander.data.Point;
 import lunarlander.logic.Control;
 import lunarlander.utilities.Utilities;
 
 public class GUI extends JFrame {
-	private static final long serialVersionUID = 1L;
-
 	private Control control;
-
-	public Control getControl() {
-		return control;
-	}
-
 	private HUD hud;
-
 	private JPanel contentPane;
-
-	public JPanel getContentPane() {
-		return contentPane;
-	}
-
 	private Image doubleBufferImage;
 	private Graphics doubleBufferGraphics;
-
-	public Graphics getDoubleBufferGraphics() {
-		return doubleBufferGraphics;
-	}
-
 	private BufferedImage rocketImage;
-	private int HUD_Y = 30;
 
 	public GUI(Control dieSteuerung) {
 		initialise(dieSteuerung);
@@ -56,28 +37,40 @@ public class GUI extends JFrame {
 	private void initialise(Control control) {
 		this.control = control;
 		this.hud = new HUD(this);
-		rocketImage = Utilities.loadImage("/player.png");
+		this.rocketImage = Utilities.loadImage(Constants.ROCKET_IMAGE_PATH);
 		initialiseWindowSettings();
 		initialiseContentPane();
 		initialiseListeners();
 		setVisible(true);
 	}
 
+	/**
+	 * Initialise the following properties:
+	 * <li>Window title</><li>Resizing</><li>Default close operation</><li>Bounds</>
+	 */
 	private void initialiseWindowSettings() {
-		setTitle("Lunar Lander");
+		setTitle(Constants.WINDOW_TITLE);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, this.control.getGameStage().getWidth()//
-				, this.control.getGameStage().getHeight());
+		setBounds(0, 0, control.getGameStageLogic().getWidth()//
+				, control.getGameStageLogic().getHeight());
 	}
 
 	private void initialiseContentPane() {
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		setLayout(null);
 	}
 
+	/**
+	 * Initialise the following listeners:</br>
+	 * <b>Key listener</b>
+	 * <li>key pressed
+	 * <li>key released</li> </br>
+	 * <b>Window listener</b>
+	 * <li>window opened
+	 * <li>window closing</li>
+	 */
 	private void initialiseListeners() {
 		addKeyListener(new KeyAdapter() {
 			@Override
@@ -110,11 +103,11 @@ public class GUI extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
+				control.setClosed(true);
 			}
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				control.setClosed(true);
 			}
 
 			@Override
@@ -126,12 +119,16 @@ public class GUI extends JFrame {
 	@Override
 	public void paint(Graphics graphics) {
 		if (doubleBufferImage == null) {
-			doubleBufferImage = createImage(this.getSize().width, this.getSize().height);
-			doubleBufferGraphics = doubleBufferImage.getGraphics();
+			initialiseDoubleBufferImage();
 		}
 		doubleBufferGraphics.clearRect(0, 0, this.getSize().width, this.getSize().height);
 		control.graphics();
 		graphics.drawImage(doubleBufferImage, 0, 0, this);
+	}
+
+	private void initialiseDoubleBufferImage() {
+		doubleBufferImage = createImage(this.getSize().width, this.getSize().height);
+		doubleBufferGraphics = doubleBufferImage.getGraphics();
 	}
 
 	public void clear() {
@@ -139,7 +136,7 @@ public class GUI extends JFrame {
 		doubleBufferGraphics.fillRect(0, 0, getSize().width, getSize().height);
 	}
 
-	public void drawHUD() {// TODO WIP
+	public void drawHUD() {
 		hud.update();
 	}
 
@@ -191,10 +188,10 @@ public class GUI extends JFrame {
 	 * @param screen
 	 */
 	private void calculateDefaultScreenDimensions(JPanel screen) {
-		int x = control.getGameStage().getWidth() * 40 / 100;
-		int y = control.getGameStage().getHeight() * 20 / 100;
-		int width = control.getGameStage().getWidth() * 20 / 100;
-		int height = control.getGameStage().getHeight() / 10;
+		int x = control.getGameStageLogic().getWidth() * 40 / 100;
+		int y = control.getGameStageLogic().getHeight() * 20 / 100;
+		int width = control.getGameStageLogic().getWidth() * 20 / 100;
+		int height = control.getGameStageLogic().getHeight() / 10;
 		screen.setBounds(x, y, width, height);
 	}
 
@@ -222,4 +219,11 @@ public class GUI extends JFrame {
 		}
 	}
 
+	public Control getControl() {
+		return control;
+	}
+
+	public Graphics getDoubleBufferGraphics() {
+		return doubleBufferGraphics;
+	}
 }

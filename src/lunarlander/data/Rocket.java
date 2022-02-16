@@ -1,9 +1,6 @@
 package lunarlander.data;
 
-import java.io.Serializable;
-
-public class Rocket implements Serializable {
-	private static final long serialVersionUID = 5L;
+public class Rocket {
 	private Point position;
 	private Point speed;
 	private Point gravitation;
@@ -19,6 +16,10 @@ public class Rocket implements Serializable {
 
 	public Rocket(double gravitation) {
 		initialise(gravitation);
+	}
+
+	public void reset() {
+		initialise(gravitation.getLength());
 	}
 
 	private void initialise(double gravitation) {
@@ -71,11 +72,11 @@ public class Rocket implements Serializable {
 			return "0";
 		}
 		if (270 >= orientation && orientation >= 90) {
-			int value = (int) (keepDegreesInRange(orientation - 270) - 180);
+			int value = (int) (keepDegreesInRange((double) orientation - 270) - 180);
 			value = 180 - value;
 			return "-" + value;
 		}
-		return "+" + (int) (keepDegreesInRange(orientation - 270));
+		return "+" + (int) (keepDegreesInRange((double) orientation - 270));
 	}
 
 	public void positionUpdate() {
