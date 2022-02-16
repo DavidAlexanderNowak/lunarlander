@@ -3,15 +3,18 @@ package lunarlander.logic;
 import lunarlander.constants.Constants;
 import lunarlander.data.GameStage;
 import lunarlander.data.Point;
+import lunarlander.graphics.GameStageGraphics;
 import lunarlander.logic.Control.GameState;
 
 public class GameStageLogic {
 
 	private Control control;
 	private GameStage gameStage;
+	private GameStageGraphics graphics;
 
 	public GameStageLogic(Control control) {
 		this.control = control;
+		this.graphics = new GameStageGraphics(control.getGui(), this);
 		createGameStage();
 	}
 
@@ -27,6 +30,7 @@ public class GameStageLogic {
 		if (gameStage == null) {
 			initialise();
 		}
+
 		resizeAdjust();
 		gameStage.setNumberOfPoints(30);// TODO remove number of points and switch to using array length
 		int width = gameStage.getWidth();
@@ -87,6 +91,10 @@ public class GameStageLogic {
 			break;
 		default:
 		}
+	}
+
+	public void graphics(GameState gameState) {
+		graphics.update(gameState);
 	}
 
 	public double getGravity() {

@@ -29,9 +29,9 @@ public class Control implements Runnable {
 	public Control() {
 		this.closed = false;
 		this.gameState = GameState.START;
+		this.gui = new GUI(this);
 		this.gameStageLogic = new GameStageLogic(this);
 		this.rocketLogic = new RocketLogic(this);
-		this.gui = new GUI(this);
 		this.originalHeight = gui.getHeight();
 		this.scale = (double) gui.getHeight() / originalHeight;
 	}
@@ -61,17 +61,10 @@ public class Control implements Runnable {
 	private void update() {
 		calculateScale();
 		updateGameState();
+
 		gameStageLogic.update(gameState);
 		rocketLogic.update(gameState);
-		switch (gameState) {// now happens in each logic class respectively
-		case START:
-			break;
-		case GAMELOOP:
-			break;
-		case END:
-			break;
-		default:
-		}
+
 		gui.repaint();
 	}
 
@@ -144,12 +137,13 @@ public class Control implements Runnable {
 
 	public void graphics() {
 		gui.clear();
+		gameStageLogic.graphics(gameState);
 		switch (gameState) {
 		case START:
 			gui.drawTextScreen("Press 'SPACE' to start!");
 			break;
 		case GAMELOOP:
-			gui.drawGameStage(gameStageLogic.getPoints());
+//			gui.drawGameStage(gameStageLogic.getPoints());
 			gui.drawRocket(rocketLogic.getRocket().getPosition()//
 					, rocketLogic.getRocket().getPositionCenter(), rocketLogic.getRocket().getAngle());
 			gui.drawHUD();
@@ -162,7 +156,7 @@ public class Control implements Runnable {
 				text = "You died.";
 			}
 
-			gui.drawGameStage(gameStageLogic.getPoints());
+//			gui.drawGameStage(gameStageLogic.getPoints());
 			gui.drawRocket(rocketLogic.getRocket().getPosition()//
 					, rocketLogic.getRocket().getPositionCenter(), rocketLogic.getRocket().getAngle());
 			gui.drawTextScreen(text, "Press 'ENTER' to restart!");

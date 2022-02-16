@@ -22,6 +22,7 @@ import lunarlander.data.Point;
 import lunarlander.logic.Control;
 import lunarlander.utilities.Utilities;
 
+@SuppressWarnings("serial")
 public class GUI extends JFrame {
 	private Control control;
 	private HUD hud;
@@ -30,8 +31,8 @@ public class GUI extends JFrame {
 	private Graphics doubleBufferGraphics;
 	private BufferedImage rocketImage;
 
-	public GUI(Control dieSteuerung) {
-		initialise(dieSteuerung);
+	public GUI(Control control) {
+		initialise(control);
 	}
 
 	private void initialise(Control control) {
@@ -52,8 +53,7 @@ public class GUI extends JFrame {
 		setTitle(Constants.WINDOW_TITLE);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, control.getGameStageLogic().getWidth()//
-				, control.getGameStageLogic().getHeight());
+		setBounds(0, 0, Constants.INITIAL_GAMESTAGE_WIDTH, Constants.INITIAL_GAMESTAGE_HEIGHT);
 	}
 
 	private void initialiseContentPane() {
@@ -140,11 +140,11 @@ public class GUI extends JFrame {
 		hud.update();
 	}
 
-	public void drawGameStage(Point[] derPunkt) {
+	public void drawGameStage(Point[] points) {
 		doubleBufferGraphics.setColor(Color.black);
-		for (int i = 0; i < derPunkt.length - 1; i++) {
-			doubleBufferGraphics.drawLine((int) (derPunkt[i].getX()), (int) (derPunkt[i].getY()),
-					(int) (derPunkt[i + 1].getX()), (int) (derPunkt[i + 1].getY()));
+		for (int i = 0; i < points.length - 1; i++) {
+			doubleBufferGraphics.drawLine((int) (points[i].getX()), (int) (points[i].getY()),
+					(int) (points[i + 1].getX()), (int) (points[i + 1].getY()));
 		}
 	}
 
