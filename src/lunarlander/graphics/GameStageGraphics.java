@@ -31,9 +31,9 @@ public class GameStageGraphics {
 		if (gui == null) {
 			return;
 		}
-		gui.getDoubleBufferGraphics().setColor(Color.black);
+		gui.getGuiGraphics().setColor(Color.black);
 		for (int i = 0; i < logic.getPoints().length - 1; i++) {
-			gui.getDoubleBufferGraphics().drawLine((int) (logic.getPoints()[i].getX()),
+			gui.getGuiGraphics().drawLine((int) (logic.getPoints()[i].getX()),
 					(int) (logic.getPoints()[i].getY()), (int) (logic.getPoints()[i + 1].getX()),
 					(int) (logic.getPoints()[i + 1].getY()));
 		}

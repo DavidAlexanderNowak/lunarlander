@@ -5,11 +5,13 @@ import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import lunarlander.logic.Control;
 import lunarlander.utilities.Utilities;
 
 public class HUD {
 
 	private GUI gui;
+	private Control control;
 
 	private int x;
 	private int y;
@@ -18,8 +20,9 @@ public class HUD {
 
 	private JPanel panel;
 
-	public HUD(GUI gui) {
+	public HUD(GUI gui, Control control) {
 		this.gui = gui;
+		this.control = control;
 	}
 
 	private void createPanel() {
@@ -28,11 +31,14 @@ public class HUD {
 		panel.setLayout(null);
 	}
 
+	/**
+	 * Keeps the HUD's position on the same spot relative to the Window.
+	 */
 	private void updateLocation() {
-		y = gui.getControl().getGameStageLogic().getHeight() / 100 + 30;
-		x = gui.getControl().getGameStageLogic().getWidth() * 39 / 100;
-		width = gui.getControl().getGameStageLogic().getWidth() * 26 / 100;
-		height = gui.getControl().getGameStageLogic().getHeight() / 10;
+		y = control.getGameStageLogic().getHeight() / 100 + 30;
+		x = control.getGameStageLogic().getWidth() * 39 / 100;
+		width = control.getGameStageLogic().getWidth() * 26 / 100;
+		height = control.getGameStageLogic().getHeight() / 10;
 	}
 
 	public void update() {
@@ -41,17 +47,17 @@ public class HUD {
 		createLabels();
 		gui.getContentPane().add(panel);
 		panel.setLayout(null);
-		panel.paintComponents(gui.getDoubleBufferGraphics());
+		panel.paintComponents(gui.getGuiGraphics());
 	}
 
 	private void createLabels() {
 		Font labelFont = Utilities.createFittingFont(createLabel(null, "FontCalibration", this.x + this.width / 2//
 				, this.y, this.width / 2, this.height / 2));
 
-		String velocityString = "Velocity: " + (int) gui.getControl().getRocketLogic().getRocket().getVelocity();
-		String axisVelocityString = "X: " + (int) gui.getControl().getRocketLogic().getRocket().getSpeed().getX()//
-				+ "  Y: " + (int) gui.getControl().getRocketLogic().getRocket().getSpeed().getY();
-		String orientationString = "Angle: " + gui.getControl().getRocketLogic().getRocket().getTrueOrientation() + "°";
+		String velocityString = "Velocity: " + (int) control.getRocketLogic().getRocket().getVelocity();
+		String axisVelocityString = "X: " + (int) control.getRocketLogic().getRocket().getSpeed().getX()//
+				+ "  Y: " + (int) control.getRocketLogic().getRocket().getSpeed().getY();
+		String orientationString = "Angle: " + control.getRocketLogic().getRocket().getTrueOrientation() + "Â°";
 
 		createLabel(labelFont, velocityString, x, y, width / 2, height / 2);
 		createLabel(labelFont, axisVelocityString, x, y + height / 2, width / 2, height / 2);
@@ -80,10 +86,6 @@ public class HUD {
 		}
 		panel.add(label);
 		return null;
-	}
-
-	public JPanel getPanel() {
-		return panel;
 	}
 
 }

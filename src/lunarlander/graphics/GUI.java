@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
@@ -24,11 +26,14 @@ import lunarlander.utilities.Utilities;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame {
+
 	private Control control;
 	private HUD hud;
+
 	private JPanel contentPane;
-	private Image doubleBufferImage;
-	private Graphics doubleBufferGraphics;
+	private Image image;
+	private Graphics graphics;
+
 	private BufferedImage rocketImage;
 
 	public GUI(Control control) {
@@ -37,7 +42,7 @@ public class GUI extends JFrame {
 
 	private void initialise(Control control) {
 		this.control = control;
-		this.hud = new HUD(this);
+		this.hud = new HUD(this, control);
 		this.rocketImage = Utilities.loadImage(Constants.ROCKET_IMAGE_PATH);
 		initialiseWindowSettings();
 		initialiseContentPane();
@@ -63,13 +68,15 @@ public class GUI extends JFrame {
 	}
 
 	/**
-	 * Initialise the following listeners:</br>
+	 * Initialise the following listeners: </br>
 	 * <b>Key listener</b>
 	 * <li>key pressed
 	 * <li>key released</li> </br>
 	 * <b>Window listener</b>
 	 * <li>window opened
-	 * <li>window closing</li>
+	 * <li>window closing</li> </br>
+	 * <b>Component listener</b>
+	 * <li>component resized</li>
 	 */
 	private void initialiseListeners() {
 		addKeyListener(new KeyAdapter() {
@@ -114,42 +121,56 @@ public class GUI extends JFrame {
 			public void windowActivated(WindowEvent e) {
 			}
 		});
+		addComponentListener(new ComponentListener() {
+			@Override
+			public void componentShown(ComponentEvent e) {
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				updateImageSize();
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+			}
+		});
 	}
 
 	@Override
 	public void paint(Graphics graphics) {
-		if (doubleBufferImage == null) {
-			initialiseDoubleBufferImage();
+		if (image == null) {
+			initialiseImage();
 		}
-		doubleBufferGraphics.clearRect(0, 0, this.getSize().width, this.getSize().height);
+		this.graphics.clearRect(0, 0, this.getSize().width, this.getSize().height);
 		control.graphics();
-		graphics.drawImage(doubleBufferImage, 0, 0, this);
+		graphics.drawImage(image, 0, 0, this);
 	}
 
-	private void initialiseDoubleBufferImage() {
-		doubleBufferImage = createImage(this.getSize().width, this.getSize().height);
-		doubleBufferGraphics = doubleBufferImage.getGraphics();
+	private void initialiseImage() {
+		image = createImage(this.getSize().width, this.getSize().height);
+		graphics = image.getGraphics();
+	}
+
+	private void updateImageSize() {
+		initialiseImage();
 	}
 
 	public void clear() {
-		doubleBufferGraphics.setColor(Color.white);
-		doubleBufferGraphics.fillRect(0, 0, getSize().width, getSize().height);
+		graphics.setColor(Color.white);
+		graphics.fillRect(0, 0, getSize().width, getSize().height);
 	}
 
 	public void drawHUD() {
 		hud.update();
 	}
 
-	public void drawGameStage(Point[] points) {
-		doubleBufferGraphics.setColor(Color.black);
-		for (int i = 0; i < points.length - 1; i++) {
-			doubleBufferGraphics.drawLine((int) (points[i].getX()), (int) (points[i].getY()),
-					(int) (points[i + 1].getX()), (int) (points[i + 1].getY()));
-		}
-	}
-
 	public void drawRocket(Point position, Point mitte, double neigung) {
-		Graphics2D graphics2D = (Graphics2D) doubleBufferGraphics;
+		Graphics2D graphics2D = (Graphics2D) graphics;
 		int drawLocationX = (int) position.getX();
 		int drawLocationY = (int) position.getY();
 		AffineTransform backup = graphics2D.getTransform();
@@ -170,7 +191,7 @@ public class GUI extends JFrame {
 	public void drawTextScreen(String... text) {
 		JPanel endScreen = createDefaultJPanel();
 		createScreenLabels(endScreen, text);
-		endScreen.paintComponents(doubleBufferGraphics);
+		endScreen.paintComponents(graphics);
 	}
 
 	private JPanel createDefaultJPanel() {
@@ -223,7 +244,7 @@ public class GUI extends JFrame {
 		return control;
 	}
 
-	public Graphics getDoubleBufferGraphics() {
-		return doubleBufferGraphics;
+	public Graphics getGuiGraphics() {
+		return graphics;
 	}
 }
