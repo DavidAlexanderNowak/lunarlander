@@ -28,23 +28,14 @@ public class GameStageGraphics {
 	}
 
 	private void draw() {
-		if (gui == null) {
+		if (gui == null || gui.getGuiGraphics() == null || logic == null || logic.getPoints() == null) {
 			return;
 		}
 		gui.getGuiGraphics().setColor(Color.black);
 		for (int i = 0; i < logic.getPoints().length - 1; i++) {
-			gui.getGuiGraphics().drawLine((int) (logic.getPoints()[i].getX()),
-					(int) (logic.getPoints()[i].getY()), (int) (logic.getPoints()[i + 1].getX()),
-					(int) (logic.getPoints()[i + 1].getY()));
+			gui.getGuiGraphics().drawLine((int) (logic.getPoints()[i].getX()), (int) (logic.getPoints()[i].getY()),
+					(int) (logic.getPoints()[i + 1].getX()), (int) (logic.getPoints()[i + 1].getY()));
 		}
-	}
-
-	public void setLogic(GameStageLogic logic) {
-		this.logic = logic;
-	}
-
-	public void setGui(GUI gui) {
-		this.gui = gui;
 	}
 
 }

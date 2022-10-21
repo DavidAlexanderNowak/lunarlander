@@ -7,6 +7,7 @@ import java.util.Set;
 import lunarlander.graphics.GUI;
 import lunarlander.logic.RocketLogic.RocketState;
 
+
 public class Control implements Runnable {
 
 	private GUI gui;
@@ -136,16 +137,19 @@ public class Control implements Runnable {
 	}
 
 	public void graphics() {
+		if (gui == null || gameStageLogic == null || rocketLogic == null || gameState == null) {
+			return;
+		}
 		gui.clear();
 		gameStageLogic.graphics(gameState);
+		rocketLogic.graphics(gameState);
 		switch (gameState) {
 		case START:
 			gui.drawTextScreen("Press 'SPACE' to start!");
 			break;
 		case GAMELOOP:
-//			gui.drawGameStage(gameStageLogic.getPoints());
-			gui.drawRocket(rocketLogic.getRocket().getPosition()//
-					, rocketLogic.getRocket().getPositionCenter(), rocketLogic.getRocket().getAngle());
+//			gui.drawRocket(rocketLogic.getRocket().getPosition()//
+//					, rocketLogic.getRocket().getPositionCenter(), rocketLogic.getRocket().getAngle());
 			gui.drawHUD();
 			break;
 		case END:
@@ -156,9 +160,8 @@ public class Control implements Runnable {
 				text = "You died.";
 			}
 
-//			gui.drawGameStage(gameStageLogic.getPoints());
-			gui.drawRocket(rocketLogic.getRocket().getPosition()//
-					, rocketLogic.getRocket().getPositionCenter(), rocketLogic.getRocket().getAngle());
+//			gui.drawRocket(rocketLogic.getRocket().getPosition()//
+//					, rocketLogic.getRocket().getPositionCenter(), rocketLogic.getRocket().getAngle());
 			gui.drawTextScreen(text, "Press 'ENTER' to restart!");
 			break;
 		default:
@@ -167,6 +170,10 @@ public class Control implements Runnable {
 
 	public void setClosed(boolean closed) {
 		this.closed = closed;
+	}
+
+	public double getScale() {
+		return scale;
 	}
 
 	public GUI getGui() {

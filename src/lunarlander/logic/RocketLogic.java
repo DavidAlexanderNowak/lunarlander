@@ -1,6 +1,8 @@
 package lunarlander.logic;
 
+import lunarlander.data.Point;
 import lunarlander.data.Rocket;
+import lunarlander.graphics.RocketGraphics;
 import lunarlander.logic.Control.GameState;
 
 public class RocketLogic {
@@ -8,6 +10,7 @@ public class RocketLogic {
 	private Control control;
 	private Rocket rocket;
 	private CollisionChecker collisionChecker;
+	private RocketGraphics graphics;
 
 	private RocketState rocketState;
 
@@ -20,6 +23,7 @@ public class RocketLogic {
 		this.control = control;
 		this.rocket = new Rocket(control.getGameStageLogic().getGravity());
 		this.collisionChecker = new CollisionChecker(rocket, control);
+		this.graphics = new RocketGraphics(control.getGui(), this);
 	}
 
 	private void resetPosition() {
@@ -29,9 +33,11 @@ public class RocketLogic {
 	public void update(GameState gameState) {
 		switch (gameState) {
 		case START:
+			rocket.setScale(getScale());
 			resetPosition();
 			break;
 		case GAMELOOP:
+			rocket.setScale(getScale());
 			input();
 			collisions();
 			break;
@@ -60,8 +66,28 @@ public class RocketLogic {
 		rocket.positionUpdate();
 	}
 
+	public void graphics(GameState gameState) {
+		graphics.update(gameState);
+	}
+
 	public RocketState getRocketState() {
 		return rocketState;
+	}
+
+	public Point getPosition() {
+		return rocket.getPosition();
+	}
+
+	public Point getCenter() {
+		return rocket.getPositionCenter();
+	}
+
+	public double getOrientation() {
+		return rocket.getOrientation();
+	}
+
+	public double getScale() {
+		return control.getScale();
 	}
 
 	/**

@@ -12,4 +12,11 @@ public class Constants {
 	public static final String ROCKET_IMAGE_PATH = "/player.png";
 	public static final String WINDOW_TITLE = "Lunar Lander";
 
+	public static final int DEFAULT_ROTATION_RATE = 2;
+	public static final int DEFAULT_POSITION_OFFSET = 50;
+	public static final int DEFAULT_ORIENTATION = 270;
+	// public static final
+//	public static final
+//	public static final
+
 }

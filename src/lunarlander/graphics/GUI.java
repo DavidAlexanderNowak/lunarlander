@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyAdapter;
@@ -128,7 +129,10 @@ public class GUI extends JFrame {
 
 			@Override
 			public void componentResized(ComponentEvent e) {
-				updateImageSize();
+				if (!resizeRunning) {
+					fixAspectRatio();
+					updateImageSize();
+				}
 			}
 
 			@Override
@@ -139,6 +143,22 @@ public class GUI extends JFrame {
 			public void componentHidden(ComponentEvent e) {
 			}
 		});
+	}
+
+	private long resizeStarted = 0;
+	private boolean resizeRunning = false;
+	private long delta = 0;
+
+	private void fixAspectRatio() {
+		resizeStarted = System.nanoTime();
+		do {
+			resizeRunning = true;
+			delta = System.nanoTime() - resizeStarted;
+			System.out.println(delta + ", " + resizeRunning + ", " + resizeStarted);
+		} while (delta < 200_000_000);
+		resizeRunning = false;
+		setBounds(getX(), getY(), getWidth(), (int) (getWidth() * 0.5));
+
 	}
 
 	@Override

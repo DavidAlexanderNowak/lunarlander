@@ -1,14 +1,17 @@
 package lunarlander.data;
 
+import lunarlander.constants.Constants;
+
 public class Rocket {
 	private Point position;
 	private Point speed;
 	private Point gravitation;
 	private double acceleration;
-	private double angle;
-	private double rotationRate = 2;
+	private double orientation;
+	private double rotationRate;
 	private boolean landed;
 	private boolean alive;
+	private double scale;
 
 	public enum Direction {
 		LEFT, RIGHT
@@ -24,29 +27,30 @@ public class Rocket {
 
 	private void initialise(double gravitation) {
 		this.gravitation = new Point(false, 0, gravitation);
-		acceleration = 2 * gravitation;
+		rotationRate = Constants.DEFAULT_ROTATION_RATE;
+		acceleration = rotationRate * gravitation;
 		position = new Point(false, 0, 0);
 		speed = new Point(false, 0, 0);
-		angle = 270;
+		orientation = Constants.DEFAULT_ORIENTATION;
 		landed = false;
 		alive = true;
 	}
 
 	public void accelerate() {
-		speed.addVector(new Point(true, acceleration, angle * Math.PI / 180));
+		speed.addVector(new Point(true, acceleration, orientation * Math.PI / 180));
 	}
 
 	public void steer(Direction direction) {
 		switch (direction) {
 		case LEFT:
-			angle += rotationRate * -1;
+			orientation += rotationRate * -1;
 			break;
 		case RIGHT:
-			angle += rotationRate;
+			orientation += rotationRate;
 			break;
 		default:
 		}
-		angle = keepDegreesInRange(angle);
+		orientation = keepDegreesInRange(orientation);
 	}
 
 	private double keepDegreesInRange(double value) {
@@ -65,18 +69,17 @@ public class Rocket {
 	 * @return returns orientation in Range of -180 to 180
 	 */
 	public String getTrueOrientation() {
-		int orientation = (int) angle;
-		// 270 to 90 is 0 to 180
-		// 90 to 0 and 360 to 270 is 0 to -180
-		if (orientation == 270) {
+		int trueOrientation = (int) this.orientation;
+		if (trueOrientation == Constants.DEFAULT_ORIENTATION) {
 			return "0";
 		}
-		if (270 >= orientation && orientation >= 90) {
-			int value = (int) (keepDegreesInRange((double) orientation - 270) - 180);
+		if (Constants.DEFAULT_ORIENTATION >= trueOrientation
+				&& trueOrientation >= Constants.DEFAULT_ORIENTATION - 180) {
+			int value = (int) (keepDegreesInRange((double) trueOrientation - Constants.DEFAULT_ORIENTATION) - 180);
 			value = 180 - value;
 			return "-" + value;
 		}
-		return "+" + (int) (keepDegreesInRange((double) orientation - 270));
+		return "+" + (int) (keepDegreesInRange((double) trueOrientation - 270));
 	}
 
 	public void positionUpdate() {
@@ -86,16 +89,16 @@ public class Rocket {
 
 	public void sideExit(int leftBorder, int rightBorder) {
 		if (getPositionCenter().getX() < leftBorder) {
-			position.setX(rightBorder - (double) 50);
+			position.setX(rightBorder - (double) Constants.DEFAULT_POSITION_OFFSET);
 		}
 		if (getPositionCenter().getX() > rightBorder) {
-			position.setX(leftBorder - (double) 50);
+			position.setX(leftBorder - (double) Constants.DEFAULT_POSITION_OFFSET);
 		}
 	}
 
 	public void resetOrientation() {
-		if (260 < angle && angle < 280) {
-			angle = 270;
+		if (Constants.DEFAULT_ORIENTATION - 10 < orientation && orientation < Constants.DEFAULT_ORIENTATION + 10) {
+			orientation = Constants.DEFAULT_ORIENTATION;
 		}
 	}
 
@@ -103,13 +106,14 @@ public class Rocket {
 		return position;
 	}
 
-	public double getAngle() {
-		return this.angle;
+	public double getOrientation() {
+		return this.orientation;
 	}
 
 	public Point getPositionCenter() {
 		Point center = new Point(position);
-		center.addVector(new Point(false, 50, 50));
+		center.addVector(
+				new Point(false, Constants.DEFAULT_POSITION_OFFSET * scale, Constants.DEFAULT_POSITION_OFFSET * scale));
 		return center;
 	}
 
@@ -140,6 +144,10 @@ public class Rocket {
 
 	public void setAlive(boolean alive) {
 		this.alive = alive;
+	}
+
+	public void setScale(double scale) {
+		this.scale = scale;
 	}
 
 }
